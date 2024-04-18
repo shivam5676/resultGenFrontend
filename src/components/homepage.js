@@ -1,17 +1,34 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { MdCloudUpload } from "react-icons/md";
 import { FaArrowCircleRight } from "react-icons/fa";
 import axios from "axios";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImFolderUpload } from "react-icons/im";
 const Homepage = () => {
-  const [finalAnswers, setFinalAnswers] = useState([]);
+  // const [finalAnswers, setFinalAnswers] = useState([]);
+  const finalAnswers = [];
   const [csvFile, setCsvFile] = useState(null);
   const [mappedKey, setMappedKEy] = useState(null);
   const [keyHEaders, setKeyHeaders] = useState(null);
   const [dataHeaders, setDataHeaders] = useState(null);
-  const [selectedOpen, setSelectedOpen] = useState(false);
+  const [selectedKeyOpen, setSelectedKeyOpen] = useState(false);
+  const [selectedQueOpen, setSelectedQueOpen] = useState(false);
   const [keyVisible, setKeyVisble] = useState(false);
+  const [uploadFiles, setUploadFiles] = useState([]);
+  const startQue = useRef(1);
+  const totalQue = useRef(100);
+  const correctAnswerPoint = useRef(1);
+  const wrongAnswerPoint = useRef(0);
+  const handleCorrectPoints = (event) => {
+    // const enteredValue = correctAnswerPoint.current.value;
+    // const numericRegex = /^[0-9]*$/;
+    // if (!numericRegex.test(enteredValue)) {
+    //   // If not a number, prevent the default behavior (typing)
+    //   event.preventDefault();
+    // }
+    // console.log(enteredValue);
+  };
+  const handleWrongPoints = () => {};
   const keyfileUploader = (e) => {
     const formData = new FormData();
     formData.append("keyFile", e.target.files[0]);
@@ -19,41 +36,48 @@ const Homepage = () => {
     axios
       .post("http://localhost:2000/upload/key", formData)
       .then((res) => {
+        setUploadFiles((prev) => {
+          return [...prev, e.target.files[0].name];
+        });
         setKeyHeaders(res.data.data);
         console.log(res.data);
       })
       .catch((err) => console.log(err));
   };
   const csvfileUploader = (e) => {
-    console.log(e.target.files[0]);
+    console.log(e.target.files[0].name);
     const formData = new FormData();
     formData.append("dataFile", e.target.files[0]);
     axios
       .post("http://localhost:2000/upload/data", formData)
       .then((res) => {
+        setUploadFiles((prev) => {
+          return [...prev, e.target.files[0].name];
+        });
         setDataHeaders(res.data.data);
         console.log(res.data);
       })
       .catch((err) => console.log(err));
   };
   const selectedOptionOpen = () => {
-    setSelectedOpen(true);
+    setSelectedKeyOpen(true);
   };
   const selectedOptionClose = () => {
-    setSelectedOpen(false);
+    setSelectedKeyOpen(false);
   };
   const resultGenerator = () => {
     setKeyVisble(true);
-
+    console.log(startQue.current);
     for (let i = 1; i < dataHeaders.length; i++) {
-      let startpoint = 1;
-      let endPoint = 100;
+      let startpoint = startQue.current;
+      let endPoint = totalQue.current;
       let CorrectAnswer = 0;
       let WrongAnswer = 0;
       let NotAttempted = 0;
 
-      let correctPoint = 2;
-      let wrongPoint = 1;
+      let correctPoint = correctAnswerPoint.current.value;
+      let wrongPoint = wrongAnswerPoint.current.value;
+      console.log(correctPoint, wrongPoint, startpoint, endPoint);
       for (let j = 1; j < keyHEaders.length; j++) {
         if (dataHeaders[i].Paper_No == "12") {
           while (startpoint <= endPoint) {
@@ -69,19 +93,28 @@ const Homepage = () => {
             }
             startpoint++;
           }
-          console.log(CorrectAnswer * correctPoint - WrongAnswer * wrongPoint);
-          setFinalAnswers((prev) => {
-            return [
-              ...prev,
-              {
-                notAttempted: NotAttempted,
-                wrongAnswer: WrongAnswer,
-                correctAnswer: CorrectAnswer,
-                total_Score:
-                  CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
-              },
-            ];
+          console.log(
+            +CorrectAnswer * +correctPoint - +WrongAnswer * +wrongPoint
+          );
+          finalAnswers.push({
+            notAttempted: NotAttempted,
+            wrongAnswer: WrongAnswer,
+            correctAnswer: CorrectAnswer,
+            total_Score:
+              CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
           });
+          // setFinalAnswers((prev) => {
+          //   return [
+          //     ...prev,
+          //     {
+          //       notAttempted: NotAttempted,
+          //       wrongAnswer: WrongAnswer,
+          //       correctAnswer: CorrectAnswer,
+          //       total_Score:
+          //         CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
+          //     },
+          //   ];
+          // });
 
           break;
         } else {
@@ -98,19 +131,7 @@ const Homepage = () => {
     ];
     console.log(finalAnswers);
     const data = finalAnswers;
-    // const data = [
-    //   { notAttempted: 23, wrongAnswer: 60, correctAnswer: 17 },
 
-    //   { notAttempted: 5, wrongAnswer: 75, correctAnswer: 20 },
-
-    //   { notAttempted: 34, wrongAnswer: 49, correctAnswer: 17 },
-
-    //   { notAttempted: 0, wrongAnswer: 74, correctAnswer: 26 },
-
-    //   { notAttempted: 0, wrongAnswer: 70, correctAnswer: 30 },
-
-    //   { notAttempted: 5, wrongAnswer: 63, correctAnswer: 32 },
-    // ];
     const csvData = convertArrayOfObjectsToCSV(data, headers);
     const blob = new Blob([csvData], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -132,217 +153,43 @@ const Homepage = () => {
         .join(",");
     });
     return [headerLine, ...csv].join("\n");
-
-    // axios
-    //   .post("http://localhost:2000/generate/csv", { finalAnswers, headers })
-    //   .then((res) => {
-    //     // setDataHeaders(res.data.data);
-    //     console.log(res.data);
-    //     let data = res.data;
-    //     const lines = data.trim().split("\n");
-    //     // Extract the column headers
-    //     const headers = lines.shift().split(",");
-    //     // Parse each line and create an array of objects representing each row
-    //     const csvData = lines.map((line) => {
-    //       const values = line.split(",");
-    //       return headers.reduce((obj, header, index) => {
-    //         obj[header] = values[index];
-    //         return obj;
-    //       }, {});
-    //     });
-    //     // Convert the array of objects into a CSV string
-    //     const csvContent = csvData
-    //       .map((row) => Object.values(row).join(","))
-    //       .join("\n");
-    //     // Create a Blob object with the CSV content
-    //     const blob = new Blob([csvContent], { type: "text/csv" });
-    //     // Create a temporary URL for the Blob object
-    //     const url = window.URL.createObjectURL(blob);
-    //     // Create a temporary link element to trigger the download
-    //     const link = document.createElement("a");
-    //     link.href = url;
-    //     link.download = "data.csv";
-    //     // Trigger the download
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     // Cleanup
-    //     document.body.removeChild(link);
-    //     window.URL.revokeObjectURL(url);
-    //   })
-    //   .catch((err) => console.log(err));
   };
   console.log(finalAnswers);
   return (
-    <div className="h-screen flex  mt-[70px]">
-      {/* <div className=" flex flex-col items-center justify-center h-screen">
-        <div
-          className="bg-white w-[400px] rounded-lg py-4"
-          onChange={csvfileUploader}
-        >
-          <label htmlFor="dataFile1" className="block cursor-pointer">
-            <input type="file" id="dataFile1" className="hidden" />
-            <div className="flex justify-center text-3xl">
-              <p className="flex items-center mx-2 font-semibold">
-                upload data file
-              </p>{" "}
-              <MdCloudUpload className="w-[80px] h-[80px]" />
-            </div>
-          </label>
-        </div>
-        <div
-          className="bg-white mt-10 w-[400px] rounded-lg py-4"
-          onChange={keyfileUploader}
-        >
-          <label
-            htmlFor="dataFile2"
-            className="block cursor-pointer"
-            // onChange={keyfileUploader}
-          >
-            <input type="file" id="dataFile2" className="hidden" />
-            <div className="flex justify-center text-3xl">
-              <p className="flex items-center mx-2 font-semibold">
-                upload key file
-              </p>{" "}
-              <MdCloudUpload className="w-[80px] h-[80px]" />
-            </div>
-          </label>
-        </div>
-        <div className="flex w-[400px] bg-white mt-5 rounded-lg p-2 items-center">
-          <div className="font-bold">Select Key value</div>{" "}
-          <div
-            className="border w-[60%] ms-2 flex flex-col items-center"
-            onClick={selectedOptionOpen}
-          >
-            {!mappedKey ? (
-              <div>click here to select</div>
-            ) : (
-              <div>{mappedKey}</div>
-            )}
-            {selectedOpen && (
-              <div className="w-[200px] h-[100px] overflow-y-scroll">
-                {keyHEaders[0].map((currentKey) => (
-                  <div
-                    className="h-[50px]"
-                    key={currentKey}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setMappedKEy(currentKey);
-                      setSelectedOpen(false); // Close the dropdown after selecting the key
-                      console.log("selected key:", currentKey);
-                    }}
-                  >
-                    {currentKey}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex  justify-center w-[400px] ">
-          <div className=" flex bg-white mt-5 rounded-lg p-3 font-bold">
-            <div className="flex items-center " onClick={resultGenerator}>
-              generate
-            </div>
-            <div className="flex items-center mx-2">
-              <FaArrowCircleRight className="w-[30px] h-[30px]" />
-            </div>{" "}
-          </div>
-        </div>
-      </div> */}
-      <div className="h-[100%] border-2 flex flex-col w-[20vw] min-w-[300px]">
-        <div className="m-2  ">
-          <div className="bg-white w-[100%] h-[150px] flex items-center  rounded-lg">
-            <div className="my-2">
-              <FaRegCircleCheck className="w-[80px] h-[80px] mx-2" />
-            </div>
-            <p className="my-2 h-[100%] flex items-center overflow-y-hidden p-2 font-bolder">
-              lorem lorem ipsumloremipsum
-            </p>
-          </div>
-        </div>
-        <div className="m-2  ">
-          <div className="bg-white w-[100%] h-[150px] flex items-center  rounded-lg">
-            <div className="my-2">
-              <FaRegCircleCheck className="w-[80px] h-[80px] mx-2" />
-            </div>
-            <p className="my-2 h-[100%] flex items-center overflow-y-hidden p-2 font-bolder">
-              lorem lorem ipsumloremipsum
-            </p>
-          </div>
-        </div>
-        {/* {!keyVisible && (
-          <div className="w-[100%] flex justify-center">
-            <div className=" flex bg-white mt-5 rounded-lg p-3 font-bold">
-              <div className="flex items-center " onClick={resultGenerator}>
-                generate
-              </div>
-              <div className="flex items-center mx-2">
-                <FaArrowCircleRight className="w-[30px] h-[30px]" />
-              </div>{" "}
-            </div>
-          </div>
-        )} */}
-
-        {keyHEaders && dataHeaders && (
-          <div className=" m-2 mt-5   ">
-            <div className=" w-[100%]   ">
-              {" "}
-              <div className="bg-white w-[100%] rounded-lg flex flex-col items-center py-4">
-                <div className="font-bold">Select Key value</div>{" "}
-                <div
-                  className="border w-[80%] ms-2 flex flex-col items-center"
-                  onClick={selectedOptionOpen}
-                >
-                  {!mappedKey ? (
-                    <div>click here to select</div>
-                  ) : (
-                    <div>{mappedKey}</div>
-                  )}
-                  {selectedOpen && (
-                    <div className="w-[200px] h-[100px] overflow-y-scroll">
-                      {keyHEaders[0].map((currentKey) => (
-                        <div
-                          className="h-[50px]"
-                          key={currentKey}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setMappedKEy(currentKey);
-                            setSelectedOpen(false); // Close the dropdown after selecting the key
-                            console.log("selected key:", currentKey);
-                          }}
-                        >
-                          {currentKey}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+    <div className="h-[100vh] flex  pt-[70px] overflow-y-hidden">
+      {uploadFiles.length > 0 && (
+        <div className="h-[100%] border-2 flex flex-col w-[20vw] min-w-[300px] overflow-y-scroll">
+          {uploadFiles.map((current) => (
+            <div className="m-2  " key={current}>
+              <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] h-[150px] flex items-center  rounded-lg text-white font-bold text-[1.5rem] shadow-2xl shadow-grey-500">
+                <div className="my-2">
+                  <FaRegCircleCheck className="w-[80px] h-[80px] mx-2" />
                 </div>
+                <p className="my-2 h-[100%] flex items-center overflow-y-hidden p-2 font-bolder">
+                  {current}
+                </p>
               </div>
             </div>
-          </div>
-        )}
-        {keyHEaders && dataHeaders && (
-          <>
+          ))}
+
+          {keyHEaders && dataHeaders && (
             <div className=" m-2 mt-5   ">
-              <div
-                className=" w-[100%]   "
-                onClick={() => {
-                  setSelectedOpen(!selectedOpen);
-                }}
-              >
-                <div className="bg-white w-[100%] rounded-lg flex flex-col items-center py-4">
-                  <div>start Question :</div>
+              <div className=" w-[100%]   ">
+                {" "}
+                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4">
+                  <div className="text-[1.2rem] font-bold">
+                    Select Key value
+                  </div>
                   <div
                     className="border w-[80%] ms-2 flex flex-col items-center"
                     onClick={selectedOptionOpen}
                   >
                     {!mappedKey ? (
-                      <div>click here to select</div>
+                      <div className="font-semibold ">click here to select</div>
                     ) : (
-                      <div>{mappedKey}</div>
+                      <div className="font-semibold">{mappedKey}</div>
                     )}
-                    {selectedOpen && (
+                    {selectedKeyOpen && (
                       <div className="w-[200px] h-[100px] overflow-y-scroll">
                         {keyHEaders[0].map((currentKey) => (
                           <div
@@ -351,7 +198,7 @@ const Homepage = () => {
                             onClick={(event) => {
                               event.stopPropagation();
                               setMappedKEy(currentKey);
-                              setSelectedOpen(false); // Close the dropdown after selecting the key
+                              setSelectedKeyOpen(false); // Close the dropdown after selecting the key
                               console.log("selected key:", currentKey);
                             }}
                           >
@@ -363,40 +210,90 @@ const Homepage = () => {
                   </div>
                 </div>
               </div>
-            </div>{" "}
-            <div className=" m-2 mt-5   ">
-              <div
-                className=" w-[100%]   "
-                onClick={() => {
-                  setSelectedOpen(false);
-                }}
-              >
-                <div className="bg-white w-[100%] rounded-lg flex flex-col items-center py-4">
-                  <div>total question in paper :</div>
-                  <input></input>
+            </div>
+          )}
+          {keyHEaders && dataHeaders && (
+            <>
+              <div className=" m-2 mt-5   ">
+                <div
+                  className=" w-[100%]   "
+                  onClick={() => {
+                    setSelectedQueOpen(false);
+                  }}
+                >
+                  <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4">
+                    <div className="text-[1.2rem] font-bold">
+                      start Question :
+                    </div>
+                    <div
+                      className="border w-[80%] ms-2 flex flex-col items-center"
+                      onClick={setSelectedQueOpen(true)}
+                    >
+                      {!mappedKey ? (
+                        <div className="font-semibold py-1">
+                          click here to select
+                        </div>
+                      ) : (
+                        <div className="font-semibold ">{mappedKey}</div>
+                      )}
+                      {selectedQueOpen && (
+                        <div className="w-[200px] h-[100px] overflow-y-scroll">
+                          {keyHEaders[0].map((currentKey) => (
+                            <div
+                              className="h-[50px]"
+                              key={currentKey}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setMappedKEy(currentKey);
+                                setSelectedQueOpen(false); // Close the dropdown after selecting the key
+                                console.log("selected key:", currentKey);
+                              }}
+                            >
+                              {currentKey}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>{" "}
+              <div className=" m-2 mt-5   ">
+                <div
+                  className=" w-[100%]   "
+                  onClick={() => {
+                    // setSelectedOpen(false);
+                  }}
+                >
+                  <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4">
+                    <div className="text-[1.2rem] font-bold">
+                      total question in paper :
+                    </div>
+                    <input></input>
+                  </div>
                 </div>
               </div>
-            </div>
-          </>
-        )}
-      </div>
-      <div className="h-[100%] w-[100%] flex max-[1020px]:flex-col">
+            </>
+          )}
+        </div>
+      )}
+      <div className="h-[100vh] w-[100%] flex max-[1020px]:flex-col overflow-y-scroll">
         <div className="h-[100%] border-2 flex w-[100%]">
           {!keyHEaders && (
             <div className=" flex flex-col items-center justify-center h-[100%] w-[100%]">
               {!dataHeaders && (
                 <div
-                  className="bg-white w-[400px] rounded-lg py-4 "
+                  className="bg-gradient-to-r from-green-400 to-blue-300 hover:from-pink-400 hover:to-yellow-600 w-[500px] rounded-lg py-4 font-semibold hover:font-bold shadow-2xl shadow-black"
                   onChange={csvfileUploader}
                 >
                   <label
                     htmlFor="dataFile1"
-                    className="block cursor-pointer mx-4 p-10 border-dashed border-blue-500 border-4"
+                    className="block cursor-pointer mx-4 p-16 border-dashed border-white-500 border-4 hover:border-8"
                   >
                     <input type="file" id="dataFile1" className="hidden" />
                     <div className="flex flex-col justify-center items-center text-3xl">
-                      <ImFolderUpload className="w-[80px] h-[80px]" />{" "}
-                      <p className="flex items-center mx-2 font-semibold">
+                      <ImFolderUpload className="w-[80px] h-[80px] text-white" />{" "}
+                      <p className="flex items-center mx-2  text-white ">
                         upload data file
                       </p>{" "}
                     </div>
@@ -405,117 +302,56 @@ const Homepage = () => {
               )}
               {dataHeaders && !keyHEaders && (
                 <div
-                  className="bg-white w-[400px] rounded-lg py-4 "
+                  className="bg-gradient-to-r from-green-400 to-blue-300 hover:from-pink-400 hover:to-yellow-600 w-[500px] rounded-lg py-4 font-semibold hover:font-bold shadow-2xl shadow-black"
                   onChange={keyfileUploader}
                 >
                   <label
                     htmlFor="dataFile2"
-                    className="block cursor-pointer mx-4 p-10 border-dashed border-blue-500 border-4"
+                    className="block cursor-pointer mx-4 p-16 border-dashed border-white-500 border-4 hover:border-8"
                   >
                     <input type="file" id="dataFile2" className="hidden" />
-                    <div className="flex flex-col justify-center items-center text-3xl">
+                    <div className="flex flex-col justify-center items-center text-3xl text-white">
                       <ImFolderUpload className="w-[80px] h-[80px]" />{" "}
-                      <p className="flex items-center mx-2 font-semibold">
-                        upload key file
-                      </p>{" "}
+                      <p className="flex items-center mx-2 ">upload key file</p>{" "}
                     </div>
                   </label>
                 </div>
               )}
-              {/* <div
-              className="bg-white mt-10 w-[400px] rounded-lg py-4"
-              onChange={keyfileUploader}
-            >
-              <label
-                htmlFor="dataFile2"
-                className="block cursor-pointer"
-                // onChange={keyfileUploader}
-              >
-                <input type="file" id="dataFile2" className="hidden" />
-                <div className="flex justify-center text-3xl">
-                  <p className="flex items-center mx-2 font-semibold">
-                    upload key file
-                  </p>{" "}
-                  <MdCloudUpload className="w-[80px] h-[80px]" />
-                </div>
-              </label>
-            </div> */}
-              {/* <div className="flex w-[400px] bg-white mt-5 rounded-lg p-2 items-center">
-              <div className="font-bold">Select Key value</div>{" "}
-              <div
-                className="border w-[60%] ms-2 flex flex-col items-center"
-                onClick={selectedOptionOpen}
-              >
-                {!mappedKey ? (
-                  <div>click here to select</div>
-                ) : (
-                  <div>{mappedKey}</div>
-                )}
-                {selectedOpen && (
-                  <div className="w-[200px] h-[100px] overflow-y-scroll">
-                    {keyHEaders[0].map((currentKey) => (
-                      <div
-                        className="h-[50px]"
-                        key={currentKey}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setMappedKEy(currentKey);
-                          setSelectedOpen(false); // Close the dropdown after selecting the key
-                          console.log("selected key:", currentKey);
-                        }}
-                      >
-                        {currentKey}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div> */}
-
-              {/*<div className="flex  justify-center w-[400px] ">
-               <div className=" flex bg-white mt-5 rounded-lg p-3 font-bold">
-                <div className="flex items-center " onClick={resultGenerator}>
-                  generate
-                </div>
-                <div className="flex items-center mx-2">
-                  <FaArrowCircleRight className="w-[30px] h-[30px]" />
-                </div>{" "}
-              </div> 
-            </div>*/}
             </div>
           )}
 
           {dataHeaders && keyHEaders && (
             <div className="m-2 w-[100%] flex justify-center">
-              <div className="w-[100%] max-w-[600px] h-fit bg-white pb-8 rounded-lg">
+              <div className="w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
                 <div className="flex justify-center">
-                  <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500">
+                  <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
                     Marks to Apply
                   </p>
                 </div>
                 <div className="flex justify-around mt-2">
                   <div>
-                    <div className="font-bold">correct answer</div>
-                    <div className="flex justify-center">
-                      <div
-                        contentEditable
-                        className="border-2 w-[60px] text-center"
-                      >
-                        1
-                      </div>
+                    <div className="font-bold py-2 text-[1.1rem]">
+                      correct answer
                     </div>
-
-                    {/* <input className="border-2 w-[40px]"></input> */}
+                    <div className="flex justify-center">
+                      <input
+                        className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
+                        ref={correctAnswerPoint}
+                        type="number"
+                        onChange={handleCorrectPoints}
+                      ></input>
+                    </div>
                   </div>
                   <div>
-                    <div className="font-bold">wrong answer</div>
+                    <div className="font-bold py-2 text-[1.1rem]">
+                      wrong answer
+                    </div>
                     <div className="flex justify-center">
-                      <div
-                        contentEditable
-                        className="border-2 w-[60px] text-center"
-                      >
-                        1
-                      </div>
+                      <input
+                        className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
+                        ref={wrongAnswerPoint}
+                        type="number"
+                      ></input>
                     </div>
                   </div>
                 </div>
@@ -524,25 +360,25 @@ const Homepage = () => {
           )}
         </div>
         {dataHeaders && keyHEaders && (
-          <div className="h-[100%] border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%]">
+          <div className="h-[100%] border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%] mb-[70px]">
             <div className="mx-2 w-[100%]">
-              <div className=" w-[100%] flex justify-center text-2xl border-2 border-black my-4">
+              <div className=" w-[100%] flex justify-center text-2xl font-bold border-4 border-blue-500 my-4">
                 Result OutPut Headers
               </div>
-              <div className="h-[50vh] bg-white border-2 overflow-y-scroll">
+              <div className="max-h-[50vh] min-h-[30vh] bg-gradient-to-r from-cyan-500 to-blue-500 border-2 overflow-y-scroll pb-[70px]">
                 {dataHeaders &&
                   dataHeaders[0].map((current) => {
                     return (
-                      <div className=" mx-8 my-4  hover:bg-yellow-500">
+                      <div className="    hover:bg-yellow-500">
                         <input
                           type="checkbox"
                           id={current}
                           name={current}
-                          className="mx-2 h-[20px] w-[20px]"
+                          className="mx-2 h-[20px] w-[20px] my-2"
                         />
                         <label
                           for="scales"
-                          className="mx-4 text-[20px] font-bold"
+                          className="mx-4 text-[1.1rem] font-bold text-white"
                         >
                           {current}
                         </label>
@@ -551,6 +387,31 @@ const Homepage = () => {
                     );
                   })}
               </div>
+              <div className="text-center mt-2 flex flex-row min-[1020px]:flex-col  justify-center">
+                <div className="text-center mt-2 ">
+                  <a
+                    class="group inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75 mx-4"
+                    href="#"
+                    onClick={resultGenerator}
+                  >
+                    <span class="block rounded-full bg-white px-8 py-3 text-sm font-bold group-hover:bg-transparent hover:text-white text-black">
+                      Generate Result
+                    </span>
+                  </a>
+                </div>
+                <div className="text-center mt-2 ">
+                  <a
+                    class="group inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75 mx-4"
+                    href="#"
+                  >
+                    <span class="block rounded-full bg-white px-8 py-3 text-sm font-bold group-hover:bg-transparent hover:text-white text-black">
+                      cancel
+                    </span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="h-[100px]"></div>
             </div>
           </div>
         )}
