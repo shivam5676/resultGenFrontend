@@ -60,12 +60,15 @@ const Homepage = () => {
       })
       .catch((err) => console.log(err));
   };
-  const selectedOptionOpen = () => {
+  const selectedKEyOptionOpen = () => {
     setSelectedKeyOpen(true);
   };
   const selectedOptionClose = () => {
     setSelectedKeyOpen(false);
   };
+  const selectedQueOptionOpen=()=>{
+    setSelectedQueOpen(true)
+  }
   const resultGenerator = () => {
     finalAnswers = [];
     setKeyVisble(true);
@@ -187,7 +190,7 @@ const Homepage = () => {
                   </div>
                   <div
                     className="border w-[80%] ms-2 flex flex-col items-center"
-                    onClick={selectedOptionOpen}
+                    onClick={selectedKEyOptionOpen}
                   >
                     {!mappedKey ? (
                       <div className="font-semibold ">click here to select</div>
@@ -232,14 +235,14 @@ const Homepage = () => {
                     </div>
                     <div
                       className="border w-[80%] ms-2 flex flex-col items-center"
-                      onClick={() => setSelectedQueOpen(true)}
+                      onClick={selectedQueOptionOpen}
                     >
                       {!mappedQue ? (
                         <div className="font-semibold py-1">
                           click here to select
                         </div>
                       ) : (
-                        <div className="font-semibold ">{mappedKey}</div>
+                        <div className="font-semibold ">{mappedQue}</div>
                       )}
                       {selectedQueOpen && (
                         <div className="w-[200px] h-[100px] overflow-y-scroll">
@@ -344,7 +347,7 @@ const Homepage = () => {
                         ref={correctAnswerPoint}
                         type="number"
                         onChange={handleCorrectPoints}
-                        value={correctAnswerPoint.current.value}
+                  
                       ></input>
                     </div>
                   </div>
@@ -357,7 +360,7 @@ const Homepage = () => {
                         className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
                         ref={wrongAnswerPoint}
                         type="number"
-                        value={correctAnswerPoint.current.value}
+              
                       ></input>
                     </div>
                   </div>
