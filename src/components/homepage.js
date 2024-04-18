@@ -6,9 +6,10 @@ import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImFolderUpload } from "react-icons/im";
 const Homepage = () => {
   // const [finalAnswers, setFinalAnswers] = useState([]);
-  const finalAnswers = [];
+  let finalAnswers = [];
   const [csvFile, setCsvFile] = useState(null);
   const [mappedKey, setMappedKEy] = useState(null);
+  const [mappedQue, setMappedQue] = useState(null);
   const [keyHEaders, setKeyHeaders] = useState(null);
   const [dataHeaders, setDataHeaders] = useState(null);
   const [selectedKeyOpen, setSelectedKeyOpen] = useState(false);
@@ -66,6 +67,7 @@ const Homepage = () => {
     setSelectedKeyOpen(false);
   };
   const resultGenerator = () => {
+    finalAnswers = [];
     setKeyVisble(true);
     console.log(startQue.current);
     for (let i = 1; i < dataHeaders.length; i++) {
@@ -160,7 +162,10 @@ const Homepage = () => {
       {uploadFiles.length > 0 && (
         <div className="h-[100%] border-2 flex flex-col w-[20vw] min-w-[300px] overflow-y-scroll">
           {uploadFiles.map((current) => (
-            <div className="m-2  " key={current}>
+            <div
+              className="m-2 animate__animated animate__backInDown"
+              key={current}
+            >
               <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] h-[150px] flex items-center  rounded-lg text-white font-bold text-[1.5rem] shadow-2xl shadow-grey-500">
                 <div className="my-2">
                   <FaRegCircleCheck className="w-[80px] h-[80px] mx-2" />
@@ -174,7 +179,7 @@ const Homepage = () => {
 
           {keyHEaders && dataHeaders && (
             <div className=" m-2 mt-5   ">
-              <div className=" w-[100%]   ">
+              <div className=" w-[100%]  animate__animated animate__backInDown animate__slow">
                 {" "}
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4">
                   <div className="text-[1.2rem] font-bold">
@@ -214,7 +219,7 @@ const Homepage = () => {
           )}
           {keyHEaders && dataHeaders && (
             <>
-              <div className=" m-2 mt-5   ">
+              <div className=" m-2 mt-5  animate__animated animate__backInDown animate__slower ">
                 <div
                   className=" w-[100%]   "
                   onClick={() => {
@@ -227,9 +232,9 @@ const Homepage = () => {
                     </div>
                     <div
                       className="border w-[80%] ms-2 flex flex-col items-center"
-                      onClick={setSelectedQueOpen(true)}
+                      onClick={() => setSelectedQueOpen(true)}
                     >
-                      {!mappedKey ? (
+                      {!mappedQue ? (
                         <div className="font-semibold py-1">
                           click here to select
                         </div>
@@ -244,7 +249,7 @@ const Homepage = () => {
                               key={currentKey}
                               onClick={(event) => {
                                 event.stopPropagation();
-                                setMappedKEy(currentKey);
+                                setMappedQue(currentKey);
                                 setSelectedQueOpen(false); // Close the dropdown after selecting the key
                                 console.log("selected key:", currentKey);
                               }}
@@ -258,7 +263,7 @@ const Homepage = () => {
                   </div>
                 </div>
               </div>{" "}
-              <div className=" m-2 mt-5   ">
+              <div className=" m-2 mt-5  animate__animated animate__backInDown animate__slower ">
                 <div
                   className=" w-[100%]   "
                   onClick={() => {
@@ -283,7 +288,7 @@ const Homepage = () => {
             <div className=" flex flex-col items-center justify-center h-[100%] w-[100%]">
               {!dataHeaders && (
                 <div
-                  className="bg-gradient-to-r from-green-400 to-blue-300 hover:from-pink-400 hover:to-yellow-600 w-[500px] rounded-lg py-4 font-semibold hover:font-bold shadow-2xl shadow-black"
+                  className="animate__animated animate__bounceInLeft bg-gradient-to-r from-green-400 to-blue-300 hover:from-pink-400 hover:to-yellow-600 w-[500px] rounded-lg py-4 font-semibold hover:font-bold shadow-2xl shadow-black"
                   onChange={csvfileUploader}
                 >
                   <label
@@ -302,7 +307,7 @@ const Homepage = () => {
               )}
               {dataHeaders && !keyHEaders && (
                 <div
-                  className="bg-gradient-to-r from-green-400 to-blue-300 hover:from-pink-400 hover:to-yellow-600 w-[500px] rounded-lg py-4 font-semibold hover:font-bold shadow-2xl shadow-black"
+                  className="animate__animated animate__bounceInRight animate__slow bg-gradient-to-r from-green-400 to-blue-300 hover:from-pink-400 hover:to-yellow-600 w-[500px] rounded-lg py-4 font-semibold hover:font-bold shadow-2xl shadow-black"
                   onChange={keyfileUploader}
                 >
                   <label
@@ -322,7 +327,7 @@ const Homepage = () => {
 
           {dataHeaders && keyHEaders && (
             <div className="m-2 w-[100%] flex justify-center">
-              <div className="w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
+              <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
                 <div className="flex justify-center">
                   <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
                     Marks to Apply
@@ -339,6 +344,7 @@ const Homepage = () => {
                         ref={correctAnswerPoint}
                         type="number"
                         onChange={handleCorrectPoints}
+                        value={correctAnswerPoint.current.value}
                       ></input>
                     </div>
                   </div>
@@ -351,6 +357,7 @@ const Homepage = () => {
                         className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
                         ref={wrongAnswerPoint}
                         type="number"
+                        value={correctAnswerPoint.current.value}
                       ></input>
                     </div>
                   </div>
@@ -362,35 +369,38 @@ const Homepage = () => {
         {dataHeaders && keyHEaders && (
           <div className="h-[100%] border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%] mb-[70px]">
             <div className="mx-2 w-[100%]">
-              <div className=" w-[100%] flex justify-center text-2xl font-bold border-4 border-blue-500 my-4">
-                Result OutPut Headers
-              </div>
-              <div className="max-h-[50vh] min-h-[30vh] bg-gradient-to-r from-cyan-500 to-blue-500 border-2 overflow-y-scroll pb-[70px]">
-                {dataHeaders &&
-                  dataHeaders[0].map((current) => {
-                    return (
-                      <div className="    hover:bg-yellow-500">
-                        <input
-                          type="checkbox"
-                          id={current}
-                          name={current}
-                          className="mx-2 h-[20px] w-[20px] my-2"
-                        />
-                        <label
-                          for="scales"
-                          className="mx-4 text-[1.1rem] font-bold text-white"
-                        >
-                          {current}
-                        </label>
-                        <hr className="mt-2"></hr>
-                      </div>
-                    );
-                  })}
+              <div className="animate__animated animate__bounceInDown animate__delay-3s">
+                {" "}
+                <div className=" w-[100%] bg-gradient-to-r from-red-600 to-yellow-500 shadow-2xl flex justify-center text-2xl font-bold border-4 border-2 border-white my-4">
+                  <p className="bg-grey py-4 text-white "> OutPut Headers</p>
+                </div>
+                <div className="max-h-[50vh] min-h-[30vh] bg-gradient-to-r from-cyan-500 to-blue-500 border-2 overflow-y-scroll pb-[70px]">
+                  {dataHeaders &&
+                    dataHeaders[0].map((current) => {
+                      return (
+                        <div className="    hover:bg-yellow-500">
+                          <input
+                            type="checkbox"
+                            id={current}
+                            name={current}
+                            className="mx-2 h-[20px] w-[20px] my-2"
+                          />
+                          <label
+                            for="scales"
+                            className="mx-4 text-[1.1rem] font-bold text-white"
+                          >
+                            {current}
+                          </label>
+                          <hr className="mt-2"></hr>
+                        </div>
+                      );
+                    })}
+                </div>{" "}
               </div>
               <div className="text-center mt-2 flex flex-row min-[1020px]:flex-col  justify-center">
                 <div className="text-center mt-2 ">
                   <a
-                    class="group inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75 mx-4"
+                    class="animate__animated animate__bounceInLeft animate__delay-4s group inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75 mx-4"
                     href="#"
                     onClick={resultGenerator}
                   >
@@ -401,7 +411,7 @@ const Homepage = () => {
                 </div>
                 <div className="text-center mt-2 ">
                   <a
-                    class="group inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75 mx-4"
+                    class="animate__animated animate__bounceInLeft animate__delay-5s group inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75 mx-4"
                     href="#"
                   >
                     <span class="block rounded-full bg-white px-8 py-3 text-sm font-bold group-hover:bg-transparent hover:text-white text-black">
