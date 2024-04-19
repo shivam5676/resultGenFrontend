@@ -5,7 +5,6 @@ import axios from "axios";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImFolderUpload } from "react-icons/im";
 const Homepage = () => {
-  // const [finalAnswers, setFinalAnswers] = useState([]);
   let finalAnswers = [];
   const [csvFile, setCsvFile] = useState(null);
   const [mappedKey, setMappedKEy] = useState(null);
@@ -20,16 +19,16 @@ const Homepage = () => {
   const totalQue = useRef(100);
   const correctAnswerPoint = useRef(1);
   const wrongAnswerPoint = useRef(0);
+  console.log(correctAnswerPoint.current.value);
+  let headers = ["notAttempted", "wrongAnswer", "correctAnswer", "total_Score"];
   const handleCorrectPoints = (event) => {
-    // const enteredValue = correctAnswerPoint.current.value;
-    // const numericRegex = /^[0-9]*$/;
-    // if (!numericRegex.test(enteredValue)) {
-    //   // If not a number, prevent the default behavior (typing)
-    //   event.preventDefault();
-    // }
-    // console.log(enteredValue);
+    console.log(correctAnswerPoint.current.value);
   };
   const handleWrongPoints = () => {};
+  const outPutHeadersHandler = (data) => {
+    headers.push(data);
+    console.log(headers);
+  };
   const keyfileUploader = (e) => {
     const formData = new FormData();
     formData.append("keyFile", e.target.files[0]);
@@ -66,9 +65,9 @@ const Homepage = () => {
   const selectedOptionClose = () => {
     setSelectedKeyOpen(false);
   };
-  const selectedQueOptionOpen=()=>{
-    setSelectedQueOpen(true)
-  }
+  const selectedQueOptionOpen = () => {
+    setSelectedQueOpen(true);
+  };
   const resultGenerator = () => {
     finalAnswers = [];
     setKeyVisble(true);
@@ -82,9 +81,12 @@ const Homepage = () => {
 
       let correctPoint = correctAnswerPoint.current.value;
       let wrongPoint = wrongAnswerPoint.current.value;
+
       console.log(correctPoint, wrongPoint, startpoint, endPoint);
       for (let j = 1; j < keyHEaders.length; j++) {
-        if (dataHeaders[i].Paper_No == "12") {
+        console.log(dataHeaders[i].Paper_No, keyHEaders[j].Paper_No);
+     
+        if (dataHeaders[i].Paper_No == keyHEaders[j].Paper_No) {
           while (startpoint <= endPoint) {
             if (dataHeaders[i][`Q${startpoint}`].toUpperCase() == "") {
               NotAttempted++;
@@ -124,16 +126,11 @@ const Homepage = () => {
           break;
         } else {
           // console.log("object");
-          break;
+          
         }
       }
     }
-    const headers = [
-      "notAttempted",
-      "wrongAnswer",
-      "correctAnswer",
-      "total_Score",
-    ];
+
     console.log(finalAnswers);
     const data = finalAnswers;
 
@@ -184,13 +181,19 @@ const Homepage = () => {
             <div className=" m-2 mt-5   ">
               <div className=" w-[100%]  animate__animated animate__backInDown animate__slow">
                 {" "}
-                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4">
+                <div
+                  className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    selectedKEyOptionOpen(false);
+                  }}
+                >
                   <div className="text-[1.2rem] font-bold">
                     Select Key value
                   </div>
                   <div
                     className="border w-[80%] ms-2 flex flex-col items-center"
-                    onClick={selectedKEyOptionOpen}
+                    // onClick={selectedKEyOptionOpen}
                   >
                     {!mappedKey ? (
                       <div className="font-semibold ">click here to select</div>
@@ -235,14 +238,31 @@ const Homepage = () => {
                     </div>
                     <div
                       className="border w-[80%] ms-2 flex flex-col items-center"
-                      onClick={selectedQueOptionOpen}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setSelectedQueOpen(!selectedQueOpen); // open the dropdown after selecting the Question key
+                      }}
                     >
                       {!mappedQue ? (
-                        <div className="font-semibold py-1">
+                        <div
+                          className="font-semibold py-1"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedQueOpen(true); // open the dropdown after selecting the Question key
+                          }}
+                        >
                           click here to select
                         </div>
                       ) : (
-                        <div className="font-semibold ">{mappedQue}</div>
+                        <div
+                          className="font-semibold "
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedQueOpen(true); // open the dropdown after selecting the Question key
+                          }}
+                        >
+                          {mappedQue}
+                        </div>
                       )}
                       {selectedQueOpen && (
                         <div className="w-[200px] h-[100px] overflow-y-scroll">
@@ -347,7 +367,7 @@ const Homepage = () => {
                         ref={correctAnswerPoint}
                         type="number"
                         onChange={handleCorrectPoints}
-                  
+                        defaultValue={correctAnswerPoint.current.value}
                       ></input>
                     </div>
                   </div>
@@ -360,7 +380,6 @@ const Homepage = () => {
                         className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
                         ref={wrongAnswerPoint}
                         type="number"
-              
                       ></input>
                     </div>
                   </div>
@@ -386,6 +405,7 @@ const Homepage = () => {
                             type="checkbox"
                             id={current}
                             name={current}
+                            onClick={() => outPutHeadersHandler(current)}
                             className="mx-2 h-[20px] w-[20px] my-2"
                           />
                           <label
