@@ -15,11 +15,11 @@ const Homepage = () => {
   const [selectedQueOpen, setSelectedQueOpen] = useState(false);
   const [keyVisible, setKeyVisble] = useState(false);
   const [uploadFiles, setUploadFiles] = useState([]);
-  const startQue = useRef(1);
-  const totalQue = useRef(100);
+  const startQue = useRef();
+  const totalQue = useRef();
   const correctAnswerPoint = useRef(1);
   const wrongAnswerPoint = useRef(0);
-  console.log(correctAnswerPoint.current.value);
+  // console.log(correctAnswerPoint.current.value);
   let headers = ["notAttempted", "wrongAnswer", "correctAnswer", "total_Score"];
   const handleCorrectPoints = (event) => {
     console.log(correctAnswerPoint.current.value);
@@ -71,10 +71,10 @@ const Homepage = () => {
   const resultGenerator = () => {
     finalAnswers = [];
     setKeyVisble(true);
-    console.log(startQue.current);
+
     for (let i = 1; i < dataHeaders.length; i++) {
-      let startpoint = startQue.current;
-      let endPoint = totalQue.current;
+      let startpoint = mappedQue;
+      let endPoint = +mappedQue + +totalQue.current.value - 1;
       let CorrectAnswer = 0;
       let WrongAnswer = 0;
       let NotAttempted = 0;
@@ -82,56 +82,41 @@ const Homepage = () => {
       let correctPoint = correctAnswerPoint.current.value;
       let wrongPoint = wrongAnswerPoint.current.value;
 
-      console.log(correctPoint, wrongPoint, startpoint, endPoint);
       for (let j = 1; j < keyHEaders.length; j++) {
-        console.log(dataHeaders[i].Paper_No, keyHEaders[j].Paper_No);
-     
-        if (dataHeaders[i].Paper_No == keyHEaders[j].Paper_No) {
+        if (dataHeaders[i][mappedKey] == keyHEaders[j][mappedKey]) {
           while (startpoint <= endPoint) {
-            if (dataHeaders[i][`Q${startpoint}`].toUpperCase() == "") {
+            let currentHeaders = keyHEaders[0][startpoint];
+
+            if (dataHeaders[i][currentHeaders] == "") {
               NotAttempted++;
             } else if (
-              keyHEaders[j][`Q${startpoint}`].toUpperCase() ==
-              dataHeaders[i][`Q${startpoint}`].toUpperCase()
+              keyHEaders[j][currentHeaders] == dataHeaders[i][currentHeaders]
             ) {
               CorrectAnswer++;
-            } else {
+            } else if (
+              keyHEaders[j][currentHeaders] != dataHeaders[i][currentHeaders]
+            ) {
               WrongAnswer++;
             }
             startpoint++;
           }
-          console.log(
-            +CorrectAnswer * +correctPoint - +WrongAnswer * +wrongPoint
-          );
+
           finalAnswers.push({
+            ROLL_NO: dataHeaders[i].ROLL_NO,
+            Paper_No: dataHeaders[i].Paper_No,
             notAttempted: NotAttempted,
             wrongAnswer: WrongAnswer,
             correctAnswer: CorrectAnswer,
             total_Score:
               CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
           });
-          // setFinalAnswers((prev) => {
-          //   return [
-          //     ...prev,
-          //     {
-          //       notAttempted: NotAttempted,
-          //       wrongAnswer: WrongAnswer,
-          //       correctAnswer: CorrectAnswer,
-          //       total_Score:
-          //         CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
-          //     },
-          //   ];
-          // });
-
+          // return;
           break;
         } else {
-          // console.log("object");
-          
         }
       }
     }
 
-    console.log(finalAnswers);
     const data = finalAnswers;
 
     const csvData = convertArrayOfObjectsToCSV(data, headers);
@@ -156,7 +141,7 @@ const Homepage = () => {
     });
     return [headerLine, ...csv].join("\n");
   };
-  console.log(finalAnswers);
+
   return (
     <div className="h-[100vh] flex  pt-[70px] overflow-y-hidden">
       {uploadFiles.length > 0 && (
@@ -261,20 +246,25 @@ const Homepage = () => {
                             setSelectedQueOpen(true); // open the dropdown after selecting the Question key
                           }}
                         >
-                          {mappedQue}
+                          {dataHeaders[0][mappedQue]}
                         </div>
                       )}
                       {selectedQueOpen && (
                         <div className="w-[200px] h-[100px] overflow-y-scroll">
-                          {keyHEaders[0].map((currentKey) => (
+                          {keyHEaders[0].map((currentKey, index) => (
                             <div
                               className="h-[50px]"
                               key={currentKey}
                               onClick={(event) => {
                                 event.stopPropagation();
-                                setMappedQue(currentKey);
+                                setMappedQue(index);
                                 setSelectedQueOpen(false); // Close the dropdown after selecting the key
-                                console.log("selected key:", currentKey);
+                                console.log(
+                                  "selected key:",
+                                  keyHEaders[0][index],
+                                  keyHEaders[0][100 + index - 1],
+                                  index
+                                );
                               }}
                             >
                               {currentKey}
@@ -297,7 +287,11 @@ const Homepage = () => {
                     <div className="text-[1.2rem] font-bold">
                       total question in paper :
                     </div>
-                    <input></input>
+                    <input
+                      ref={totalQue}
+                      defaultValue={+100}
+                      type="number"
+                    ></input>
                   </div>
                 </div>
               </div>
@@ -347,44 +341,94 @@ const Homepage = () => {
               )}
             </div>
           )}
-
           {dataHeaders && keyHEaders && (
-            <div className="m-2 w-[100%] flex justify-center">
-              <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
-                <div className="flex justify-center">
-                  <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
-                    Marks to Apply
-                  </p>
-                </div>
-                <div className="flex justify-around mt-2">
-                  <div>
-                    <div className="font-bold py-2 text-[1.1rem]">
-                      correct answer
-                    </div>
+            <div className="w-[100%]">
+              {" "}
+              {dataHeaders && keyHEaders && (
+                <div className="m-2 w-[100%] flex justify-center pe-4">
+                  <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
                     <div className="flex justify-center">
-                      <input
-                        className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
-                        ref={correctAnswerPoint}
-                        type="number"
-                        onChange={handleCorrectPoints}
-                        defaultValue={correctAnswerPoint.current.value}
-                      ></input>
+                      <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
+                        Marks to Apply
+                      </p>
+                    </div>
+                    <div className="flex justify-around mt-2">
+                      <div>
+                        <div className="font-bold py-2 text-[1.1rem]">
+                          Correct Marks
+                        </div>
+                        <div className="flex justify-center">
+                          <input
+                            className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
+                            ref={correctAnswerPoint}
+                            type="number"
+                            onChange={handleCorrectPoints}
+                            defaultValue={correctAnswerPoint.current.value}
+                          ></input>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-bold py-2 text-[1.1rem]">
+                          Wrong Marks
+                        </div>
+                        <div className="flex justify-center">
+                          <input
+                            className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
+                            ref={wrongAnswerPoint}
+                            type="number"
+                          ></input>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <div className="font-bold py-2 text-[1.1rem]">
-                      wrong answer
-                    </div>
+                </div>
+              )}
+              {dataHeaders && keyHEaders && (
+                <div className="m-2 mt-10 w-[100%] flex justify-center pe-4">
+                  <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
                     <div className="flex justify-center">
-                      <input
-                        className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
-                        ref={wrongAnswerPoint}
-                        type="number"
-                      ></input>
+                      <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
+                        Subject Wise Marking
+                      </p>
+                    </div>
+                    <div className="flex mt-2">
+                      <div className="w-[70%]">
+                        <div className="flex justify-between mt-2 mx-4 text-center">
+                          <div className="font-bold text-[1.2rem] ">
+                            Start que :
+                            <input className="w-[50px] mx-4 my-2"></input>
+                          </div>
+                          <div className="font-bold text-[1.2rem]">
+                            End que :
+                            <input className="w-[50px] mx-4 my-2"></input>
+                          </div>
+                        </div>
+                        <div className="flex justify-between mt-2 mx-4 text-center ">
+                          <div className="font-bold text-[1.1rem]">
+                            Correct <span className="">(+)</span> :
+                            <input className="w-[50px] mx-4 my-2"></input>
+                          </div>
+                          <div className="font-bold text-[1.1rem]">
+                            Wrong <span className="">(-)</span> :
+                            <input className="w-[50px] mx-4 my-2"></input>
+                          </div>
+                        </div>
+                      </div>
+                      <div className=" mt-2 h-[120px] w-[30%] mx-2 flex items-center">
+                        <div className="overflow-y-scroll h-[100%] w-[100%] text-center border-s border-2">
+                          <p className="font-bold my-1">hello</p>
+                          <p className="font-bold my-1">hello</p>
+                          <p className="font-bold my-1">hello</p>
+                          <p className="font-bold my-1">hello</p> <p className="font-bold my-1">hello</p>
+                          <p className="font-bold my-1">hello</p>
+                          <p className="font-bold my-1">hello</p>
+                          <p className="font-bold my-1">hello</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
