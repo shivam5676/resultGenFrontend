@@ -6,6 +6,7 @@ import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImFolderUpload } from "react-icons/im";
 const Homepage = () => {
   let finalAnswers = [];
+  const subjectHEaders = [];
   const [csvFile, setCsvFile] = useState(null);
   const [mappedKey, setMappedKEy] = useState(null);
   const [mappedQue, setMappedQue] = useState(null);
@@ -83,7 +84,33 @@ const Homepage = () => {
       let wrongPoint = wrongAnswerPoint.current.value;
 
       for (let j = 1; j < keyHEaders.length; j++) {
+        // let ink=0
+        // // console.log(keyHEaders[0].length);
+        //         while(ink<keyHEaders[0].length){
+        //           let currentHeaders = keyHEaders[0][ink];
+        //           console.log("object",keyHEaders[0][ink],dataHeaders[i][currentHeaders]);
+        //           ink++
+        //         }
+        //         return;
         if (dataHeaders[i][mappedKey] == keyHEaders[j][mappedKey]) {
+          let currentIndex = 0;
+          let AllOutPutHeaders = {};
+          // console.log(keyHEaders[0].length);
+          while (currentIndex < keyHEaders[0].length) {
+            let currentHeaders = keyHEaders[0][currentIndex];
+            AllOutPutHeaders = {
+              ...AllOutPutHeaders,
+              [currentHeaders]: dataHeaders[i][currentHeaders],
+            };
+            // console.log(
+            //   "object",
+            //   keyHEaders[0][ink],
+            //   dataHeaders[i][currentHeaders]
+            // );
+            currentIndex++;
+          }
+          // console.log(obj);
+          // return;
           while (startpoint <= endPoint) {
             let currentHeaders = keyHEaders[0][startpoint];
 
@@ -98,10 +125,12 @@ const Homepage = () => {
             ) {
               WrongAnswer++;
             }
+            console.log(dataHeaders[0], dataHeaders[i][currentHeaders]);
             startpoint++;
           }
-
+          // return;
           finalAnswers.push({
+            ...AllOutPutHeaders,
             ROLL_NO: dataHeaders[i].ROLL_NO,
             Paper_No: dataHeaders[i].Paper_No,
             notAttempted: NotAttempted,
@@ -116,7 +145,7 @@ const Homepage = () => {
         }
       }
     }
-
+    // return;
     const data = finalAnswers;
 
     const csvData = convertArrayOfObjectsToCSV(data, headers);
@@ -291,6 +320,7 @@ const Homepage = () => {
                       ref={totalQue}
                       defaultValue={+100}
                       type="number"
+                      min={0}
                     ></input>
                   </div>
                 </div>
@@ -384,49 +414,78 @@ const Homepage = () => {
                 </div>
               )}
               {dataHeaders && keyHEaders && (
-                <div className="m-2 mt-10 w-[100%] flex justify-center pe-4">
-                  <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
-                    <div className="flex justify-center">
-                      <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
-                        Subject Wise Marking
-                      </p>
-                    </div>
-                    <div className="flex mt-2">
-                      <div className="w-[70%]">
-                        <div className="flex justify-between mt-2 mx-4 text-center">
-                          <div className="font-bold text-[1.2rem] ">
-                            Start que :
-                            <input className="w-[50px] mx-4 my-2"></input>
+                <div className="m-2 mt-10 w-[100%]  pe-4">
+                  <div className="flex justify-center">
+                    <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
+                      <div className="flex justify-center">
+                        <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
+                          Subject Wise Marking
+                        </p>
+                      </div>
+                      <div className="flex mt-2">
+                        <div className="w-[60%]">
+                          <div className="flex justify-between mt-2 mx-4 text-center">
+                            <div className="font-bold text-[1.1rem] ">
+                              Start que :
+                              <input className="w-[50px] mx-4 my-2"></input>
+                            </div>
+                            <div className="font-bold text-[1.1rem]">
+                              End que :
+                              <input className="w-[50px] mx-4 my-2"></input>
+                            </div>
                           </div>
-                          <div className="font-bold text-[1.2rem]">
-                            End que :
-                            <input className="w-[50px] mx-4 my-2"></input>
+                          <div className="flex justify-between mt-2 mx-4 text-center ">
+                            <div className="font-bold text-[1.1rem]">
+                              Correct <span className="">(+)</span> :
+                              <input className="w-[50px] mx-4 my-2"></input>
+                            </div>
+                            <div className="font-bold text-[1.1rem]">
+                              Wrong <span className="">(-)</span> :
+                              <input className="w-[50px] mx-4 my-2"></input>
+                            </div>
                           </div>
+                          {/* <div className="flex justify-between mt-2 mx-4 text-center ">
+                          <div className="flex text-[1.1rem] font-bold">
+                            Subject :{" "}
+                            <input
+                              className="text-center mx-2 max-w-[150px] min-w-[120px]"
+                              placeholder="type here... "
+                            ></input>
+                            <div className="mx-2 border-2 border-yellow-500 px-2 bg-blue-400 font-bold text-white rounded-md flex items-center justify-center">
+                              Add
+                            </div>
+                          </div>
+                        </div> */}
                         </div>
-                        <div className="flex justify-between mt-2 mx-4 text-center ">
-                          <div className="font-bold text-[1.1rem]">
-                            Correct <span className="">(+)</span> :
-                            <input className="w-[50px] mx-4 my-2"></input>
-                          </div>
-                          <div className="font-bold text-[1.1rem]">
-                            Wrong <span className="">(-)</span> :
-                            <input className="w-[50px] mx-4 my-2"></input>
+                        <div className=" mt-2 h-[120px] w-[40%] mx-2 flex items-center">
+                          <div className="overflow-y-scroll h-[100%] w-[100%] text-center border-s border-2">
+                            <p className="font-bold my-1">hello</p>
+                            <p className="font-bold my-1">hello</p>
+                            <p className="font-bold my-1">hello</p>
+                            <p className="font-bold my-1">hello</p>{" "}
+                            <p className="font-bold my-1">hello</p>
+                            <p className="font-bold my-1">hello</p>
+                            <p className="font-bold my-1">hello</p>
+                            <p className="font-bold my-1">hello</p>
                           </div>
                         </div>
                       </div>
-                      <div className=" mt-2 h-[120px] w-[30%] mx-2 flex items-center">
-                        <div className="overflow-y-scroll h-[100%] w-[100%] text-center border-s border-2">
-                          <p className="font-bold my-1">hello</p>
-                          <p className="font-bold my-1">hello</p>
-                          <p className="font-bold my-1">hello</p>
-                          <p className="font-bold my-1">hello</p> <p className="font-bold my-1">hello</p>
-                          <p className="font-bold my-1">hello</p>
-                          <p className="font-bold my-1">hello</p>
-                          <p className="font-bold my-1">hello</p>
+                      <div className="flex justify-between  mx-4 text-center w-[100%]">
+                          <div className="flex text-[1.1rem] font-bold justify-center  mx-8">
+                            Subject :{" "}
+                            <input
+                              className="text-center mx-2 max-w-[150px] min-w-[120px]"
+                              placeholder="type here... "
+                            ></input>
+                            <div className="mx-2 border-2 border-yellow-500 px-2 bg-blue-400 font-bold text-white rounded-md flex items-center justify-center">
+                              Add
+                            </div>
+                          </div>
                         </div>
-                      </div>
                     </div>
                   </div>
+                  
+
                 </div>
               )}
             </div>
