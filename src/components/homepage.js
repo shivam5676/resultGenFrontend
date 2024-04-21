@@ -12,6 +12,9 @@ const Homepage = () => {
   const [mappedQue, setMappedQue] = useState(null);
   const [keyHEaders, setKeyHeaders] = useState(null);
   const [dataHeaders, setDataHeaders] = useState(null);
+  const [subjectEndDropDownOpen, setSubjectEndDropdownOpen] = useState(false);
+  const [subjectStartDropDownOpen, setSubjectStartDropDownOpen] =
+    useState(false);
   const [selectedKeyOpen, setSelectedKeyOpen] = useState(false);
   const [selectedQueOpen, setSelectedQueOpen] = useState(false);
   const [keyVisible, setKeyVisble] = useState(false);
@@ -20,12 +23,20 @@ const Homepage = () => {
   const totalQue = useRef();
   const correctAnswerPoint = useRef(1);
   const wrongAnswerPoint = useRef(0);
+  const SubjectStartKey = useRef(null);
+  const SubjectEndKey = useRef(null);
+  const correctSubjectPoint = useRef();
+  const wrongSubjectPoint = useRef();
   // console.log(correctAnswerPoint.current.value);
+  console.log(SubjectStartKey.current);
   let headers = ["notAttempted", "wrongAnswer", "correctAnswer", "total_Score"];
   const handleCorrectPoints = (event) => {
     console.log(correctAnswerPoint.current.value);
   };
   const handleWrongPoints = () => {};
+  const subjectMarkHandler = (start, end, subName, correctMark, wrongMark) => {
+    console.log(start, end, subName, correctMark, wrongMark);
+  };
   const outPutHeadersHandler = (data) => {
     headers.push(data);
     console.log(headers);
@@ -425,23 +436,99 @@ const Homepage = () => {
                       <div className="flex mt-2">
                         <div className="w-[60%]">
                           <div className="flex justify-between mt-2 mx-4 text-center">
-                            <div className="font-bold text-[1.1rem] ">
+                            <div
+                              className="font-bold text-[1.1rem] "
+                              onClick={() => {
+                                setSubjectStartDropDownOpen(
+                                  !subjectStartDropDownOpen
+                                );
+                              }}
+                            >
                               Start que :
-                              <input className="w-[50px] mx-4 my-2"></input>
+                              <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
+                                {!SubjectStartKey.current
+                                  ? "select here"
+                                  : SubjectStartKey.current}
+                                {subjectStartDropDownOpen && (
+                                  <div className="bg-blue-500  overflow-x-hidden overflow-y-scroll  h-[60px] ">
+                                    <div
+                                      className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2"
+                                      onClick={() => {
+                                        setSubjectStartDropDownOpen(
+                                          !subjectStartDropDownOpen
+                                        );
+
+                                        SubjectStartKey.current = "hello1";
+                                      }}
+                                    >
+                                      opt-111111111111111111
+                                    </div>{" "}
+                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
+                                      opt-111111111111111111
+                                    </div>{" "}
+                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
+                                      opt-111111111111111111
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div className="font-bold text-[1.1rem]">
+                            <div
+                              className="font-bold text-[1.1rem]"
+                              onClick={() => {
+                                setSubjectEndDropdownOpen(
+                                  !subjectEndDropDownOpen
+                                );
+                              }}
+                            >
                               End que :
-                              <input className="w-[50px] mx-4 my-2"></input>
+                              <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
+                                {!SubjectEndKey.current
+                                  ? "select here"
+                                  : SubjectEndKey.current}
+                                {subjectEndDropDownOpen && (
+                                  <div className="bg-blue-500  overflow-x-hidden overflow-y-scroll  h-[60px] ">
+                                    <div
+                                      className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2"
+                                      onClick={() => {
+                                        setSubjectEndDropdownOpen(
+                                          !subjectEndDropDownOpen
+                                        );
+
+                                        SubjectEndKey.current = "hello";
+                                      }}
+                                    >
+                                      opt-111111111111111111
+                                    </div>{" "}
+                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
+                                      opt-111111111111111111
+                                    </div>{" "}
+                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
+                                      opt-111111111111111111
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <div className="flex justify-between mt-2 mx-4 text-center ">
                             <div className="font-bold text-[1.1rem]">
                               Correct <span className="">(+)</span> :
-                              <input className="w-[50px] mx-4 my-2"></input>
+                              <input
+                                className="w-[50px] mx-4 my-2"
+                                defaultValue={1}
+                                type="number"
+                                ref={correctSubjectPoint}
+                              ></input>
                             </div>
                             <div className="font-bold text-[1.1rem]">
                               Wrong <span className="">(-)</span> :
-                              <input className="w-[50px] mx-4 my-2"></input>
+                              <input
+                                className="w-[50px] mx-4 my-2"
+                                defaultValue={0}
+                                type="number"
+                                ref={wrongSubjectPoint}
+                              ></input>
                             </div>
                           </div>
                           {/* <div className="flex justify-between mt-2 mx-4 text-center ">
@@ -457,35 +544,42 @@ const Homepage = () => {
                           </div>
                         </div> */}
                         </div>
-                        <div className=" mt-2 h-[120px] w-[40%] mx-2 flex items-center">
-                          <div className="overflow-y-scroll h-[100%] w-[100%] text-center border-s border-2">
-                            <p className="font-bold my-1">hello</p>
-                            <p className="font-bold my-1">hello</p>
-                            <p className="font-bold my-1">hello</p>
-                            <p className="font-bold my-1">hello</p>{" "}
-                            <p className="font-bold my-1">hello</p>
-                            <p className="font-bold my-1">hello</p>
-                            <p className="font-bold my-1">hello</p>
-                            <p className="font-bold my-1">hello</p>
+                        <div className=" mt-2 h-[120px] w-[40%] mx-2 flex flex-col items-center">
+                          <div className="bg-gray-200 w-[100%] text-center font-bold">
+                            selected subject
+                          </div>
+                          <div className="overflow-y-scroll h-[100px] w-[100%] text-center border-s border-2">
+                            <p className="font-bold  border-b border-blue-600 hover:bg-white hover:border-b-0">
+                              Hindi
+                            </p>
                           </div>
                         </div>
                       </div>
                       <div className="flex justify-between  mx-4 text-center w-[100%]">
-                          <div className="flex text-[1.1rem] font-bold justify-center  mx-8">
-                            Subject :{" "}
-                            <input
-                              className="text-center mx-2 max-w-[150px] min-w-[120px]"
-                              placeholder="type here... "
-                            ></input>
-                            <div className="mx-2 border-2 border-yellow-500 px-2 bg-blue-400 font-bold text-white rounded-md flex items-center justify-center">
-                              Add
-                            </div>
+                        <div className="flex text-[1.1rem] font-bold justify-center  mx-8">
+                          Subject :{" "}
+                          <input
+                            className="text-center mx-2 max-w-[150px] min-w-[120px]"
+                            placeholder="type here... "
+                          ></input>
+                          <div
+                            className="mx-2 border-2 border-yellow-500 px-2 bg-blue-400 font-bold text-white rounded-md flex items-center justify-center"
+                            onClick={() => {
+                              subjectMarkHandler(
+                                SubjectStartKey.current,
+                                SubjectEndKey.current,
+                                "subName",
+                                correctSubjectPoint.current.value,
+                                wrongSubjectPoint.current.value
+                              );
+                            }}
+                          >
+                            Add
                           </div>
                         </div>
+                      </div>
                     </div>
                   </div>
-                  
-
                 </div>
               )}
             </div>
