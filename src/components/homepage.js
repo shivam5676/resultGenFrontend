@@ -19,6 +19,7 @@ const Homepage = () => {
   const [selectedQueOpen, setSelectedQueOpen] = useState(false);
   const [keyVisible, setKeyVisble] = useState(false);
   const [uploadFiles, setUploadFiles] = useState([]);
+  const [subjectWiseMarking, setSubjectWiseMarking] = useState([]);
   const startQue = useRef();
   const totalQue = useRef();
   const correctAnswerPoint = useRef(1);
@@ -36,7 +37,28 @@ const Homepage = () => {
   const handleWrongPoints = () => {};
   const subjectMarkHandler = (start, end, subName, correctMark, wrongMark) => {
     console.log(start, end, subName, correctMark, wrongMark);
+    const finditem = subjectWiseMarking.find(
+      (current) => current.subject == subName
+    );
+    console.log(finditem);
+    if (!finditem) {
+      setSubjectWiseMarking((prev) => {
+        return [
+          ...prev,
+          {
+            subject: subName,
+            start: start,
+            end: end,
+            correct: correctMark,
+            wrong: wrongMark,
+          },
+        ];
+      });
+    } else {
+      console.log("subject already present");
+    }
   };
+  console.log(subjectWiseMarking);
   const outPutHeadersHandler = (data) => {
     headers.push(data);
     console.log(headers);
@@ -95,14 +117,6 @@ const Homepage = () => {
       let wrongPoint = wrongAnswerPoint.current.value;
 
       for (let j = 1; j < keyHEaders.length; j++) {
-        // let ink=0
-        // // console.log(keyHEaders[0].length);
-        //         while(ink<keyHEaders[0].length){
-        //           let currentHeaders = keyHEaders[0][ink];
-        //           console.log("object",keyHEaders[0][ink],dataHeaders[i][currentHeaders]);
-        //           ink++
-        //         }
-        //         return;
         if (dataHeaders[i][mappedKey] == keyHEaders[j][mappedKey]) {
           let currentIndex = 0;
           let AllOutPutHeaders = {};
@@ -113,15 +127,48 @@ const Homepage = () => {
               ...AllOutPutHeaders,
               [currentHeaders]: dataHeaders[i][currentHeaders],
             };
-            // console.log(
-            //   "object",
-            //   keyHEaders[0][ink],
-            //   dataHeaders[i][currentHeaders]
-            // );
+
             currentIndex++;
           }
-          // console.log(obj);
-          // return;
+          for (let k = 0; k < subjectWiseMarking.length; k++) {
+            // while (SubjectStartKey <= SubjectEndKey) {
+            CorrectAnswer=0;
+            WrongAnswer=0;
+            NotAttempted=0;
+            // }
+            while (
+              subjectWiseMarking[k].startpoint <= subjectWiseMarking[k].endPoint
+            ) {
+              let currentHeaders = keyHEaders[0][startpoint];
+
+              if (dataHeaders[i][currentHeaders] == "") {
+                NotAttempted++;
+              } else if (
+                keyHEaders[j][currentHeaders] == dataHeaders[i][currentHeaders]
+              ) {
+                CorrectAnswer++;
+              } else if (
+                keyHEaders[j][currentHeaders] != dataHeaders[i][currentHeaders]
+              ) {
+                WrongAnswer++;
+              }
+              // console.log(dataHeaders[0], dataHeaders[i][currentHeaders]);
+              subjectWiseMarking[k].startpoint++;
+            }
+            // const 
+headers.push()
+            finalAnswers.push({
+              ...AllOutPutHeaders,
+              
+              notAttempted: NotAttempted,
+              wrongAnswer: WrongAnswer,
+              correctAnswer: CorrectAnswer,
+              total_Score:
+                CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
+            });
+            console.log(subjectWiseMarking[k].subject);
+          }
+          return;
           while (startpoint <= endPoint) {
             let currentHeaders = keyHEaders[0][startpoint];
 
@@ -156,7 +203,7 @@ const Homepage = () => {
         }
       }
     }
-    // return;
+    return;
     const data = finalAnswers;
 
     const csvData = convertArrayOfObjectsToCSV(data, headers);
@@ -446,9 +493,11 @@ const Homepage = () => {
                             >
                               Start que :
                               <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
-                                {!SubjectStartKey.current
-                                  ? "select here"
-                                  : SubjectStartKey.current}
+                                {!SubjectStartKey.current ? (
+                                  <div className="text-white">select here</div>
+                                ) : (
+                                  SubjectStartKey.current
+                                )}
                                 {subjectStartDropDownOpen && (
                                   <div className="bg-blue-500  overflow-x-hidden overflow-y-scroll  h-[60px] ">
                                     <div
@@ -483,9 +532,13 @@ const Homepage = () => {
                             >
                               End que :
                               <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
-                                {!SubjectEndKey.current
-                                  ? "select here"
-                                  : SubjectEndKey.current}
+                                {!SubjectEndKey.current ? (
+                                  <div className="text-white text-md">
+                                    select here
+                                  </div>
+                                ) : (
+                                  SubjectEndKey.current
+                                )}
                                 {subjectEndDropDownOpen && (
                                   <div className="bg-blue-500  overflow-x-hidden overflow-y-scroll  h-[60px] ">
                                     <div
