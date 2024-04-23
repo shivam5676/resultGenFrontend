@@ -1,12 +1,13 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { MdCloudUpload } from "react-icons/md";
 import { FaArrowCircleRight } from "react-icons/fa";
 import axios from "axios";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { ImFolderUpload } from "react-icons/im";
+import ResultGenerationContext from "../store/ResultGenerationContext";
 const Homepage = () => {
   let finalAnswers = [];
-  const subjectHEaders = [];
+  // const subjectHEaders = [];
   const [csvFile, setCsvFile] = useState(null);
   const [mappedKey, setMappedKEy] = useState(null);
   const [mappedQue, setMappedQue] = useState(null);
@@ -28,7 +29,9 @@ const Homepage = () => {
   const SubjectEndKey = useRef(null);
   const correctSubjectPoint = useRef();
   const wrongSubjectPoint = useRef();
-  // console.log(correctAnswerPoint.current.value);
+  const subjectName = useRef("");
+  const ctx = useContext(ResultGenerationContext);
+console.log(ctx.keyHeaders);
   console.log(SubjectStartKey.current);
   let headers = ["notAttempted", "wrongAnswer", "correctAnswer", "total_Score"];
   const handleCorrectPoints = (event) => {
@@ -58,10 +61,9 @@ const Homepage = () => {
       console.log("subject already present");
     }
   };
-  console.log(subjectWiseMarking);
+  
   const outPutHeadersHandler = (data) => {
     headers.push(data);
-    console.log(headers);
   };
   const keyfileUploader = (e) => {
     const formData = new FormData();
@@ -74,7 +76,7 @@ const Homepage = () => {
           return [...prev, e.target.files[0].name];
         });
         setKeyHeaders(res.data.data);
-        console.log(res.data);
+        ctx.uploadKeyHeaders(res.data.data);
       })
       .catch((err) => console.log(err));
   };
@@ -89,6 +91,7 @@ const Homepage = () => {
           return [...prev, e.target.files[0].name];
         });
         setDataHeaders(res.data.data);
+        ctx.uploadDataHeaders(res.data.data)
         console.log(res.data);
       })
       .catch((err) => console.log(err));
@@ -102,7 +105,9 @@ const Homepage = () => {
   const selectedQueOptionOpen = () => {
     setSelectedQueOpen(true);
   };
+
   const resultGenerator = () => {
+    let subjectHeaders = [];
     finalAnswers = [];
     setKeyVisble(true);
 
@@ -130,15 +135,18 @@ const Homepage = () => {
 
             currentIndex++;
           }
+
           for (let k = 0; k < subjectWiseMarking.length; k++) {
             // while (SubjectStartKey <= SubjectEndKey) {
-            CorrectAnswer=0;
-            WrongAnswer=0;
-            NotAttempted=0;
+            startpoint = +subjectWiseMarking[k].start;
+            endPoint = +subjectWiseMarking[k].end;
+            CorrectAnswer = 0;
+            WrongAnswer = 0;
+            NotAttempted = 0;
+            console.log(startpoint, endPoint);
             // }
-            while (
-              subjectWiseMarking[k].startpoint <= subjectWiseMarking[k].endPoint
-            ) {
+            while (startpoint <= endPoint) {
+              console.log("object");
               let currentHeaders = keyHEaders[0][startpoint];
 
               if (dataHeaders[i][currentHeaders] == "") {
@@ -153,22 +161,32 @@ const Homepage = () => {
                 WrongAnswer++;
               }
               // console.log(dataHeaders[0], dataHeaders[i][currentHeaders]);
-              subjectWiseMarking[k].startpoint++;
+              startpoint++;
             }
-            // const 
-headers.push()
+
+            subjectHeaders.push(
+              `${subjectWiseMarking[k].subject}_notAttempted`,
+              `${subjectWiseMarking[k].subject}_Attempted`,
+              `${subjectWiseMarking[k].subject}_wrongAnswer`
+            );
+
+            // finalAnswers = [
+            //   {
+            //     ...finalAnswers[0],
+            //     [`${subjectWiseMarking[k].subject}_notAttempted`]: NotAttempted,
+            //     [`${subjectWiseMarking[k].subject}_Attempted`]: CorrectAnswer,
+            //     [`${subjectWiseMarking[k].subject}_wrongAnswer`]: WrongAnswer,
+            //   },
+            // ];
             finalAnswers.push({
-              ...AllOutPutHeaders,
-              
-              notAttempted: NotAttempted,
-              wrongAnswer: WrongAnswer,
-              correctAnswer: CorrectAnswer,
-              total_Score:
-                CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
+              [`${subjectWiseMarking[k].subject}_notAttempted`]: NotAttempted,
+              [`${subjectWiseMarking[k].subject}_Attempted`]: CorrectAnswer,
+              [`${subjectWiseMarking[k].subject}_wrongAnswer`]: WrongAnswer,
             });
             console.log(subjectWiseMarking[k].subject);
           }
-          return;
+          console.log(finalAnswers);
+          break;
           while (startpoint <= endPoint) {
             let currentHeaders = keyHEaders[0][startpoint];
 
@@ -203,10 +221,11 @@ headers.push()
         }
       }
     }
-    return;
+    // return;
     const data = finalAnswers;
-
-    const csvData = convertArrayOfObjectsToCSV(data, headers);
+    console.log(data);
+    return;
+    const csvData = convertArrayOfObjectsToCSV(data, subjectHeaders);
     const blob = new Blob([csvData], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -248,7 +267,7 @@ headers.push()
               </div>
             </div>
           ))}
-
+          {/* key selector */}
           {keyHEaders && dataHeaders && (
             <div className=" m-2 mt-5   ">
               <div className=" w-[100%]  animate__animated animate__backInDown animate__slow">
@@ -295,6 +314,7 @@ headers.push()
               </div>
             </div>
           )}
+          {/* que selector */}
           {keyHEaders && dataHeaders && (
             <>
               <div className=" m-2 mt-5  animate__animated animate__backInDown animate__slower ">
@@ -429,6 +449,7 @@ headers.push()
               )}
             </div>
           )}
+          {/* apply marks */}
           {dataHeaders && keyHEaders && (
             <div className="w-[100%]">
               {" "}
@@ -471,6 +492,7 @@ headers.push()
                   </div>
                 </div>
               )}
+              {/* subject wise marking */}
               {dataHeaders && keyHEaders && (
                 <div className="m-2 mt-10 w-[100%]  pe-4">
                   <div className="flex justify-center">
@@ -493,31 +515,30 @@ headers.push()
                             >
                               Start que :
                               <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
-                                {!SubjectStartKey.current ? (
+                                {SubjectStartKey.current < 0 ? (
                                   <div className="text-white">select here</div>
                                 ) : (
-                                  SubjectStartKey.current
+                                  keyHEaders[0][SubjectStartKey.current]
                                 )}
                                 {subjectStartDropDownOpen && (
                                   <div className="bg-blue-500  overflow-x-hidden overflow-y-scroll  h-[60px] ">
-                                    <div
-                                      className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2"
-                                      onClick={() => {
-                                        setSubjectStartDropDownOpen(
-                                          !subjectStartDropDownOpen
-                                        );
+                                    {keyHEaders[0].map((current, index) => {
+                                      return (
+                                        <div
+                                          className="border-b  whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2"
+                                          onClick={() => {
+                                            setSubjectStartDropDownOpen(
+                                              !subjectStartDropDownOpen
+                                            );
 
-                                        SubjectStartKey.current = "hello1";
-                                      }}
-                                    >
-                                      opt-111111111111111111
-                                    </div>{" "}
-                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
-                                      opt-111111111111111111
-                                    </div>{" "}
-                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
-                                      opt-111111111111111111
-                                    </div>
+                                            SubjectStartKey.current = index;
+                                          }}
+                                        >
+                                          {" "}
+                                          {current}
+                                        </div>
+                                      );
+                                    })}{" "}
                                   </div>
                                 )}
                               </div>
@@ -532,33 +553,31 @@ headers.push()
                             >
                               End que :
                               <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
-                                {!SubjectEndKey.current ? (
+                                {SubjectEndKey.current < 0 ? (
                                   <div className="text-white text-md">
                                     select here
                                   </div>
                                 ) : (
-                                  SubjectEndKey.current
+                                  keyHEaders[0][SubjectEndKey.current]
                                 )}
                                 {subjectEndDropDownOpen && (
                                   <div className="bg-blue-500  overflow-x-hidden overflow-y-scroll  h-[60px] ">
-                                    <div
-                                      className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2"
-                                      onClick={() => {
-                                        setSubjectEndDropdownOpen(
-                                          !subjectEndDropDownOpen
-                                        );
+                                    {keyHEaders[0].map((current, index) => {
+                                      return (
+                                        <div
+                                          className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2"
+                                          onClick={() => {
+                                            setSubjectEndDropdownOpen(
+                                              !subjectEndDropDownOpen
+                                            );
 
-                                        SubjectEndKey.current = "hello";
-                                      }}
-                                    >
-                                      opt-111111111111111111
-                                    </div>{" "}
-                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
-                                      opt-111111111111111111
-                                    </div>{" "}
-                                    <div className="border-b whitespace-nowrap overflow-hidden overflow-ellipsis text-md mx-2 hover:bg-white hover:px-2">
-                                      opt-111111111111111111
-                                    </div>
+                                            SubjectEndKey.current = index;
+                                          }}
+                                        >
+                                          {current}
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 )}
                               </div>
@@ -584,18 +603,6 @@ headers.push()
                               ></input>
                             </div>
                           </div>
-                          {/* <div className="flex justify-between mt-2 mx-4 text-center ">
-                          <div className="flex text-[1.1rem] font-bold">
-                            Subject :{" "}
-                            <input
-                              className="text-center mx-2 max-w-[150px] min-w-[120px]"
-                              placeholder="type here... "
-                            ></input>
-                            <div className="mx-2 border-2 border-yellow-500 px-2 bg-blue-400 font-bold text-white rounded-md flex items-center justify-center">
-                              Add
-                            </div>
-                          </div>
-                        </div> */}
                         </div>
                         <div className=" mt-2 h-[120px] w-[40%] mx-2 flex flex-col items-center">
                           <div className="bg-gray-200 w-[100%] text-center font-bold">
@@ -614,6 +621,7 @@ headers.push()
                           <input
                             className="text-center mx-2 max-w-[150px] min-w-[120px]"
                             placeholder="type here... "
+                            ref={subjectName}
                           ></input>
                           <div
                             className="mx-2 border-2 border-yellow-500 px-2 bg-blue-400 font-bold text-white rounded-md flex items-center justify-center"
@@ -621,7 +629,7 @@ headers.push()
                               subjectMarkHandler(
                                 SubjectStartKey.current,
                                 SubjectEndKey.current,
-                                "subName",
+                                subjectName.current.value,
                                 correctSubjectPoint.current.value,
                                 wrongSubjectPoint.current.value
                               );
@@ -638,9 +646,11 @@ headers.push()
             </div>
           )}
         </div>
+        {/* //output headers & generate Result*/}
         {dataHeaders && keyHEaders && (
           <div className="h-[100%] border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%] mb-[70px]">
             <div className="mx-2 w-[100%]">
+              {/* outputheaders */}
               <div className="animate__animated animate__bounceInDown animate__delay-3s">
                 {" "}
                 <div className=" w-[100%] bg-gradient-to-r from-red-600 to-yellow-500 shadow-2xl flex justify-center text-2xl font-bold border-4 border-2 border-white my-4">
@@ -670,6 +680,7 @@ headers.push()
                     })}
                 </div>{" "}
               </div>
+              {/* //generate result */}
               <div className="text-center mt-2 flex flex-row min-[1020px]:flex-col  justify-center">
                 <div className="text-center mt-2 ">
                   <a
