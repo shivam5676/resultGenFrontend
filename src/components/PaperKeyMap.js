@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
 import ResultGenerationContext from "../store/ResultGenerationContext";
-import PaperkeyMap from './PaperKeyMap';
 
 const PaperkeyMap = () => {
   const ctx = useContext(ResultGenerationContext);
@@ -11,9 +10,10 @@ const PaperkeyMap = () => {
   // const [dataHeaders, setDataHeaders] = useState(null);
   const keyHEaders = ctx.keyHeaders;
   const dataHeaders = ctx.dataHeaders;
-  const selectedKEyOptionOpen = (startingPoint) => {
+  const selectedKEyOptionOpen = (mappedKeys) => {
     setSelectedKeyOpen(true);
-    ctx.paperKeyHandler({ start: startingPoint });
+    console.log(mappedKeys, mappedKey);
+    ctx.paperKeyHandler(mappedKeys);
   };
   return (
     <>
@@ -25,6 +25,7 @@ const PaperkeyMap = () => {
               className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4"
               onClick={(event) => {
                 event.stopPropagation();
+                // setSelectedKeyOpen(!selectedKeyOpen)
               }}
             >
               <div className="text-[1.2rem] font-bold">Select Key value</div>
@@ -33,9 +34,19 @@ const PaperkeyMap = () => {
                 // onClick={selectedKEyOptionOpen}
               >
                 {!mappedKey ? (
-                  <div className="font-semibold ">click here to select</div>
+                  <div
+                    className="font-semibold "
+                    onClick={() => setSelectedKeyOpen(!selectedKeyOpen)}
+                  >
+                    click here to select
+                  </div>
                 ) : (
-                  <div className="font-semibold">{mappedKey}</div>
+                  <div
+                    className="font-semibold"
+                    onClick={() => setSelectedKeyOpen(!selectedKeyOpen)}
+                  >
+                    {mappedKey}
+                  </div>
                 )}
                 {selectedKeyOpen && (
                   <div className="w-[200px] h-[100px] overflow-y-scroll">
@@ -46,7 +57,7 @@ const PaperkeyMap = () => {
                         onClick={(event) => {
                           event.stopPropagation();
                           setMappedKEy(currentKey);
-                          setSelectedKeyOpen(false); // Close the dropdown after selecting the key
+                          setSelectedKeyOpen(!selectedKeyOpen); // Close the dropdown after selecting the key
                           console.log("selected key:", currentKey);
                           selectedKEyOptionOpen(currentKey);
                         }}

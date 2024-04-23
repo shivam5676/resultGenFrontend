@@ -11,6 +11,10 @@ const PaperQueMapper = () => {
   const ctx = useContext(ResultGenerationContext);
   const keyHEaders = ctx.keyHeaders;
   const dataHeaders = ctx.dataHeaders;
+
+  // const mappedQuesHandler = (Startingindex) => {
+  //   ctx.paperMarkHandler({ start: Startingindex });
+  // };
   return (
     <>
       {" "}
@@ -62,7 +66,9 @@ const PaperQueMapper = () => {
                           onClick={(event) => {
                             event.stopPropagation();
                             setMappedQue(index);
+                            // mappedQuesHandler(index);
                             setSelectedQueOpen(false); // Close the dropdown after selecting the key
+                            ctx.paperMarkHandler({ start: index });
                             console.log(
                               "selected key:",
                               keyHEaders[0][index],
@@ -96,6 +102,9 @@ const PaperQueMapper = () => {
                   defaultValue={+100}
                   type="number"
                   min={0}
+                  onBlur={() =>
+                    ctx.paperMarkHandler({ end: +totalQue.current.value })
+                  }
                 ></input>
               </div>
             </div>

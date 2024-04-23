@@ -1,6 +1,8 @@
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
+import ResultGenerationContext from "../store/ResultGenerationContext";
 
 const MarksApply = () => {
+  const ctx = useContext(ResultGenerationContext);
   const correctAnswerPoint = useRef(1);
   const wrongAnswerPoint = useRef(0);
   const handleCorrectPoints = (event) => {
@@ -25,6 +27,11 @@ const MarksApply = () => {
                 type="number"
                 onChange={handleCorrectPoints}
                 defaultValue={correctAnswerPoint.current.value}
+                onBlur={() =>
+                  ctx.paperMarkHandler({
+                    correctPoint: +correctAnswerPoint.current.value,
+                  })
+                }
               ></input>
             </div>
           </div>
@@ -35,6 +42,11 @@ const MarksApply = () => {
                 className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
                 ref={wrongAnswerPoint}
                 type="number"
+                onBlur={() => {
+                  ctx.paperMarkHandler({
+                    wrongPoint: +wrongAnswerPoint.current.value,
+                  });
+                }}
               ></input>
             </div>
           </div>

@@ -144,9 +144,11 @@ const SubjectWiseMarkApply = () => {
                 selected subject
               </div>
               <div className="overflow-y-scroll h-[100px] w-[100%] text-center border-s border-2">
-                <p className="font-bold  border-b border-blue-600 hover:bg-white hover:border-b-0">
-                  Hindi
-                </p>
+                {subjectWiseMarking.map((current) => (
+                  <p className="font-bold  border-b border-blue-600 hover:bg-white hover:border-b-0">
+                    {current.subject}
+                  </p>
+                ))}
               </div>
             </div>
           </div>

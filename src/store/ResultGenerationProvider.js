@@ -56,7 +56,10 @@ const ResultGenerationProvider = (props) => {
     console.log("hello ", typeof fileName);
     dispatch({ type: "fileHandle", payload: fileName });
   };
-  const paperMarkHandler = (paperData) => {};
+  const paperMarkHandler = (paperData) => {
+
+    dispatch({type:"paperMarking",payload:paperData})
+  };
   const paperKeyHandler = (keyValue) => {
     dispatch({ type: "paperKeyMapper", payload: keyValue });
   };
