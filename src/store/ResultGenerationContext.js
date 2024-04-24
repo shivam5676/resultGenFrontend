@@ -13,6 +13,7 @@ const ResultGenerationContext = createContext({
   uploadFiles: [],
   uploadFilesHandler: () => {},
   paperKeyHandler:()=>{},
-  paperMappedKey:null
+  paperMappedKey:null,
+  deleteSubjectHandler:()=>{}
 });
 export default ResultGenerationContext;

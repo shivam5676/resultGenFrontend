@@ -6,7 +6,7 @@ const MarksApply = () => {
   const correctAnswerPoint = useRef(1);
   const wrongAnswerPoint = useRef(0);
   const handleCorrectPoints = (event) => {
-    console.log(correctAnswerPoint.current.value);
+    // console.log(correctAnswerPoint.current.value);
   };
 
   return (
@@ -26,7 +26,7 @@ const MarksApply = () => {
                 ref={correctAnswerPoint}
                 type="number"
                 onChange={handleCorrectPoints}
-                defaultValue={correctAnswerPoint.current.value}
+                defaultValue={1}
                 onBlur={() =>
                   ctx.paperMarkHandler({
                     correctPoint: +correctAnswerPoint.current.value,
@@ -42,6 +42,7 @@ const MarksApply = () => {
                 className="w-[60px] text-center bg-transparent border-2 text-white focus:bg-white focus:text-black outline-0 font-bold"
                 ref={wrongAnswerPoint}
                 type="number"
+                defaultValue={0}
                 onBlur={() => {
                   ctx.paperMarkHandler({
                     wrongPoint: +wrongAnswerPoint.current.value,

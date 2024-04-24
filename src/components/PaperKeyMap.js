@@ -6,13 +6,12 @@ const PaperkeyMap = () => {
   const [selectedKeyOpen, setSelectedKeyOpen] = useState(false);
   const [mappedKey, setMappedKEy] = useState(null);
   const [mappedQue, setMappedQue] = useState(null);
-  // const [keyHEaders, setKeyHeaders] = useState(null);
-  // const [dataHeaders, setDataHeaders] = useState(null);
+
   const keyHEaders = ctx.keyHeaders;
   const dataHeaders = ctx.dataHeaders;
   const selectedKEyOptionOpen = (mappedKeys) => {
     setSelectedKeyOpen(true);
-    console.log(mappedKeys, mappedKey);
+
     ctx.paperKeyHandler(mappedKeys);
   };
   return (

@@ -2,9 +2,6 @@ import React, { useContext, useRef, useState } from "react";
 import ResultGenerationContext from "../store/ResultGenerationContext";
 
 const PaperQueMapper = () => {
-  // const [keyHEaders, setKeyHeaders] = useState(null);
-  // const [dataHeaders, setDataHeaders] = useState(null);
-  const [selectedKeyOpen, setSelectedKeyOpen] = useState(false);
   const [selectedQueOpen, setSelectedQueOpen] = useState(false);
   const [mappedQue, setMappedQue] = useState(null);
   const totalQue = useRef();
@@ -12,9 +9,6 @@ const PaperQueMapper = () => {
   const keyHEaders = ctx.keyHeaders;
   const dataHeaders = ctx.dataHeaders;
 
-  // const mappedQuesHandler = (Startingindex) => {
-  //   ctx.paperMarkHandler({ start: Startingindex });
-  // };
   return (
     <>
       {" "}
@@ -87,12 +81,7 @@ const PaperQueMapper = () => {
             </div>
           </div>{" "}
           <div className=" m-2 mt-5  animate__animated animate__backInDown animate__slower ">
-            <div
-              className=" w-[100%]   "
-              onClick={() => {
-                // setSelectedOpen(false);
-              }}
-            >
+            <div className=" w-[100%]   " onClick={() => {}}>
               <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4">
                 <div className="text-[1.2rem] font-bold">
                   total question in paper :

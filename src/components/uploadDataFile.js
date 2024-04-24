@@ -8,19 +8,18 @@ import UploadStatus from "./uploadStatus";
 import PaperkeyMap from "./PaperKeyMap";
 import PaperQueMapper from "./PaperQueMapper";
 import ResultGenerationContext from "../store/ResultGenerationContext";
+import { toast } from "react-toastify";
 
 const UploadDataFile = () => {
   const [csvFile, setCsvFile] = useState(null);
   const ctx = useContext(ResultGenerationContext);
 
   const [uploadFiles, setUploadFiles] = useState([]);
-  // const [keyHEaders, setKeyHeaders] = useState(null);
-  // const [dataHeaders, setDataHeaders] = useState(null);
-  const keyHEaders=ctx.keyHeaders
-  const dataHeaders=ctx.dataHeaders
-  console.log(dataHeaders)
+
+  const keyHEaders = ctx.keyHeaders;
+  const dataHeaders = ctx.dataHeaders;
+
   const csvfileUploader = (e) => {
-    console.log(e.target.files[0].name);
     const formData = new FormData();
     formData.append("dataFile", e.target.files[0]);
     axios
@@ -29,29 +28,35 @@ const UploadDataFile = () => {
         setUploadFiles((prev) => {
           return [...prev, e.target.files[0].name];
         });
-        ctx.uploadFilesHandler(e.target.files[0].name)
-        // setDataHeaders(res.data.data);
-        ctx.uploadDataHeaders(res.data.data)
-        
+        ctx.uploadFilesHandler(e.target.files[0].name);
+
+        ctx.uploadDataHeaders(res.data.data);
       })
-      .catch((err) => console.log(err));
+      .catch((err) =>
+        toast.error(
+          "some problem while uploading data file ....check (.csv) file and try again later "
+        )
+      );
   };
   const keyfileUploader = (e) => {
     const formData = new FormData();
     formData.append("keyFile", e.target.files[0]);
-    console.log(e.target.files[0]);
+
     axios
       .post("http://localhost:2000/upload/key", formData)
       .then((res) => {
         setUploadFiles((prev) => {
           return [...prev, e.target.files[0].name];
         });
-        ctx.uploadFilesHandler(e.target.files[0].name)
-        // setKeyHeaders(res.data.data);
-        ctx.uploadKeyHeaders(res.data.data)
-        console.log(res.data);
+        ctx.uploadFilesHandler(e.target.files[0].name);
+
+        ctx.uploadKeyHeaders(res.data.data);
       })
-      .catch((err) => console.log(err));
+      .catch((err) =>
+        toast.error(
+          "some problem while uploading key file ....check (.csv) file and try again later "
+        )
+      );
   };
   return (
     <div className="h-[100vh] w-[100%] flex  pt-[70px] overflow-y-hidden">
@@ -63,10 +68,10 @@ const UploadDataFile = () => {
         </div>
       )}
 
-      <div className="h-[100vh] w-[100%] flex max-[1020px]:flex-col overflow-y-scroll">
-        <div className="h-[100%] border-2 flex w-[100%]">
+      <div className=" w-[100%] flex max-[1020px]:flex-col overflow-y-scroll">
+        <div className="h-[100%]  flex w-[100%]">
           {!keyHEaders && (
-            <div className=" flex flex-col items-center justify-center h-[100%] w-[100%]">
+            <div className=" flex flex-col items-center justify-center h-auto w-[100%]">
               {!dataHeaders && (
                 <div
                   className="animate__animated animate__bounceInLeft bg-gradient-to-r from-green-400 to-blue-300 hover:from-pink-400 hover:to-yellow-600 w-[500px] rounded-lg py-4 font-semibold hover:font-bold shadow-2xl shadow-black"
@@ -116,7 +121,7 @@ const UploadDataFile = () => {
           )}
         </div>
         {dataHeaders && keyHEaders && (
-          <div className="h-[100%] border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%] mb-[70px]">
+          <div className="h-auto border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%] mb-[70px]">
             <div className="mx-2 w-[100%]">
               <OutPutHeaders></OutPutHeaders>
             </div>

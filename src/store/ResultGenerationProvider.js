@@ -10,11 +10,9 @@ const initialState = {
 };
 const reducerfn = (state, action) => {
   if (action.type == "uploadKeyHeaders") {
-    console.log(state, action.payload);
     return { ...state, keyHeaders: action.payload };
   }
   if (action.type == "uploadDataHeaders") {
-    console.log(state, action.payload);
     return { ...state, dataHeaders: action.payload };
   }
   if (action.type == "subjectMarking") {
@@ -24,8 +22,6 @@ const reducerfn = (state, action) => {
     };
   }
   if (action.type === "fileHandle") {
-    console.log("hello inside reducer");
-    console.log(action.payload);
     return { ...state, uploadFiles: [...state.uploadFiles, action.payload] };
   }
   if (action.type == "paperMarking") {
@@ -37,6 +33,16 @@ const reducerfn = (state, action) => {
   if (action.type == "paperKeyMapper") {
     return { ...state, mappedKey: action.payload };
   }
+  if (action.type == "deleteSubject") {
+    const subjectArray = state.subjectWiseMarking;
+   
+    const filteredItems = subjectArray.filter(
+      (current) => current.subject != action.payload
+    );
+ 
+    return {...state,subjectWiseMarking:filteredItems}
+  }
+
   return state;
 };
 
@@ -57,11 +63,13 @@ const ResultGenerationProvider = (props) => {
     dispatch({ type: "fileHandle", payload: fileName });
   };
   const paperMarkHandler = (paperData) => {
-
-    dispatch({type:"paperMarking",payload:paperData})
+    dispatch({ type: "paperMarking", payload: paperData });
   };
   const paperKeyHandler = (keyValue) => {
     dispatch({ type: "paperKeyMapper", payload: keyValue });
+  };
+  const deleteSubjectHandler = (subName) => {
+    dispatch({ type: "deleteSubject", payload: subName });
   };
   const ResultGenData = {
     subjectMarkHandler: subjectMarkHandler,
@@ -75,7 +83,8 @@ const ResultGenerationProvider = (props) => {
     paperMarkHandler: paperMarkHandler,
     paperMarkings: currentState.paperWiseMarking,
     paperKeyHandler: paperKeyHandler,
-    paperMappedKey:currentState.mappedKey
+    paperMappedKey: currentState.mappedKey,
+    deleteSubjectHandler: deleteSubjectHandler,
   };
   return (
     <ResultGenerationContext.Provider value={ResultGenData}>

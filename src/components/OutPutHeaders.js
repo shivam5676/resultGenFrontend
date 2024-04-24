@@ -5,19 +5,14 @@ import GenerateResultCsv from "./GenerateResultCsv";
 const OutPutHeaders = () => {
   const ctx = useContext(ResultGenerationContext);
   const dataHeaders = ctx.dataHeaders;
-  // let headers = ["notAttempted", "wrongAnswer", "correctAnswer", "total_Score"];
-  const [headers, setHeaders] = useState([
-    "notAttempted",
-    "wrongAnswer",
-    "correctAnswer",
-    "total_Score",
-  ]);
+  const subjectMArking = ctx.subjectMarkings.length;
+ 
+  const [headers, setHeaders] = useState([]);
   const outPutHeadersHandler = (data) => {
     // headers.push(data);
     setHeaders((prev) => [...prev, data]);
-    
   };
-console.log(headers);
+
   return (
     //  {/* outputheaders */}
     <>

@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import ResultGenerationContext from "../store/ResultGenerationContext";
+import { toast } from "react-toastify";
 
 const GenerateResultCsv = (props) => {
   const ctx = useContext(ResultGenerationContext);
@@ -7,49 +8,86 @@ const GenerateResultCsv = (props) => {
   const keyHEaders = ctx.keyHeaders;
   const mappedKey = ctx.paperMappedKey;
   const subjectWiseMarking = ctx.subjectMarkings;
-  let subjectHeaders = [{}];
+  let subjectHeaders = [];
   let finalAnswers = [];
-
+  let headers = [];
   console.log(subjectWiseMarking);
   const resultGenerator = () => {
+    console.log(ctx.paperMappedKey);
     subjectHeaders = [];
     finalAnswers = [];
-    // setKeyVisble(true);
+    headers = [];
+    if (subjectWiseMarking == 0) {
+      headers = ["notAttempted", "wrongAnswer", "correctAnswer", "total_Score"];
+    } else {
+      headers = ["total"];
+    }
 
+    // setKeyVisble(true);
+    if (mappedKey == null) {
+      toast.error("please select mapped key");
+      return;
+    }
+    if (ctx.paperMarkings.start === null) {
+      toast.error("please select starting question");
+      return;
+    }
+    if (ctx.paperMarkings.end <= 0) {
+      toast.error("please select valid value for total questions");
+      return;
+    }
+    if (ctx.paperMarkings.correctPoint < 0) {
+      toast.error("correct marks value should be positive number ");
+      return;
+    }
+    if (ctx.paperMarkings.wrongPoint < 0) {
+      toast.error("wrong marks value should be positive number ");
+      return;
+    }
+    toast("csv file mapping started.....wait");
     for (let i = 1; i < dataHeaders.length; i++) {
-      //   let startpoint = mappedQue;
+      //we will go to each student attempted question in data file
+
       let startpoint = +ctx.paperMarkings.start;
+      console.log(startpoint);
+
       let endPoint = +startpoint + +ctx.paperMarkings.end - 1;
+
       let CorrectAnswer = 0;
       let WrongAnswer = 0;
       let NotAttempted = 0;
 
-      let correctPoint = ctx.paperMarkings.correctPoint;
-      let wrongPoint = ctx.paperMarkings.wrongPoint;
+      let correctPoint = +ctx.paperMarkings.correctPoint;
 
+      let wrongPoint = +ctx.paperMarkings.wrongPoint;
+
+      let subjectHEaderPushCount = 1;
       for (let j = 1; j < keyHEaders.length; j++) {
+        //we will try to find mapped key in key file so that student attempted paper in data file will be  matched with student key file target keys
         if (dataHeaders[i][mappedKey] == keyHEaders[j][mappedKey]) {
           let currentIndex = 0;
           let AllOutPutHeaders = {};
 
-          //   while (currentIndex < keyHEaders[0].length) {
-          //     let currentHeaders = keyHEaders[0][currentIndex];
-          //     AllOutPutHeaders = {
-          //       ...AllOutPutHeaders,
-          //       [currentHeaders]: dataHeaders[i][currentHeaders],
-          //     };
+          while (currentIndex < keyHEaders[0].length) {
+            let currentHeaders = keyHEaders[0][currentIndex];
+            AllOutPutHeaders = {
+              ...AllOutPutHeaders,
+              [currentHeaders]: dataHeaders[i][currentHeaders],
+            };
 
-          //     currentIndex++;
-          //   }
-          //   console.log(AllOutPutHeaders);
+            currentIndex++;
+          }
+
           if (subjectWiseMarking.length > 0) {
             let studentData = {};
+            let allSubjectTotal = 0;
             for (let k = 0; k < subjectWiseMarking.length; k++) {
-              if (i == 1) {
-                subjectHeaders.push(
+              if (i == 1 && subjectHEaderPushCount == 1) {
+                headers.push(
                   `${subjectWiseMarking[k].subject}_notAttempted`,
                   `${subjectWiseMarking[k].subject}_Attempted`,
-                  `${subjectWiseMarking[k].subject}_wrongAnswer`
+                  `${subjectWiseMarking[k].subject}_wrongAnswer`,
+                  `${subjectWiseMarking[k].subject}_total`
                 );
               }
 
@@ -58,13 +96,15 @@ const GenerateResultCsv = (props) => {
               CorrectAnswer = 0;
               WrongAnswer = 0;
               NotAttempted = 0;
-              console.log(startpoint, endPoint);
 
+              let subjectTotal = 0;
               while (startpoint <= endPoint) {
-                console.log("object");
                 let currentHeaders = keyHEaders[0][startpoint];
 
-                if (dataHeaders[i][currentHeaders] == "") {
+                if (
+                  dataHeaders[i][currentHeaders] == "" ||
+                  keyHEaders[j][currentHeaders] == ""
+                ) {
                   NotAttempted++;
                 } else if (
                   keyHEaders[j][currentHeaders] ==
@@ -77,19 +117,26 @@ const GenerateResultCsv = (props) => {
                 ) {
                   WrongAnswer++;
                 }
-                // console.log(dataHeaders[0], dataHeaders[i][currentHeaders]);
+
                 startpoint++;
               }
-
-              console.log(subjectHeaders);
+              subjectTotal =
+                CorrectAnswer * +subjectWiseMarking[k].correctPoint -
+                +WrongAnswer * +subjectWiseMarking[k].wrongPoint;
+              allSubjectTotal += subjectTotal;
               studentData = {
                 ...studentData,
                 [`${subjectWiseMarking[k].subject}_notAttempted`]: NotAttempted,
                 [`${subjectWiseMarking[k].subject}_Attempted`]: CorrectAnswer,
                 [`${subjectWiseMarking[k].subject}_wrongAnswer`]: WrongAnswer,
+                [`${subjectWiseMarking[k].subject}_total`]: subjectTotal,
+                total: allSubjectTotal,
               };
             }
-            finalAnswers.push(studentData);
+            subjectHEaderPushCount++;
+            finalAnswers.push({ ...studentData, ...AllOutPutHeaders });
+
+            // finalAnswers.push(studentData);
           } else {
             while (startpoint <= endPoint) {
               let currentHeaders = keyHEaders[0][startpoint];
@@ -103,6 +150,7 @@ const GenerateResultCsv = (props) => {
                 keyHEaders[j][currentHeaders] != dataHeaders[i][currentHeaders]
               ) {
                 WrongAnswer++;
+              } else {
               }
               //     console.log(dataHeaders[0], dataHeaders[i][currentHeaders]);
               startpoint++;
@@ -110,31 +158,33 @@ const GenerateResultCsv = (props) => {
             // return;
             finalAnswers.push({
               ...AllOutPutHeaders,
-              ROLL_NO: dataHeaders[i].ROLL_NO,
-              Paper_No: dataHeaders[i].Paper_No,
+              // ROLL_NO: dataHeaders[i].ROLL_NO,
+              // Paper_No: dataHeaders[i].Paper_No,
               notAttempted: NotAttempted,
               wrongAnswer: WrongAnswer,
               correctAnswer: CorrectAnswer,
               total_Score:
                 CorrectAnswer * correctPoint - WrongAnswer * wrongPoint,
             });
-            //   console.log(finalAnswers);
-            break;
           }
-          //   console.log(finalAnswers);
-          //   break;
+
+          break;
 
           //working code
         } else {
         }
       }
     }
-    // return;
-    const data = finalAnswers;
 
+    const data = finalAnswers;
+    console.log(finalAnswers);
+    //  return;
     const csvData = convertArrayOfObjectsToCSV(
       data,
-      subjectWiseMarking.length > 0 ? subjectHeaders : props.headers
+      headers
+      // subjectWiseMarking.length > 0
+      //   ? [...subjectHeaders, props.headers]
+      //   : props.headers
     );
     const blob = new Blob([csvData], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -145,10 +195,10 @@ const GenerateResultCsv = (props) => {
     link.click();
     document.body.removeChild(link);
   };
-  const convertArrayOfObjectsToCSV = (data, headers) => {
-    const headerLine = headers.join(",");
+  const convertArrayOfObjectsToCSV = (data, headersData) => {
+    const headerLine = headersData.join(",");
     const csv = data.map((item) => {
-      return headers
+      return headersData
         .map((header) => {
           return item[header];
         })

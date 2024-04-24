@@ -1,5 +1,7 @@
 import React, { useContext, useRef, useState } from "react";
 import ResultGenerationContext from "../store/ResultGenerationContext";
+import { toast } from "react-toastify";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const SubjectWiseMarkApply = () => {
   const SubjectStartKey = useRef(null);
@@ -16,28 +18,49 @@ const SubjectWiseMarkApply = () => {
   const subjectWiseMarking = ctx.subjectMarkings;
   const keyHEaders = ctx.keyHeaders;
   const subjectMarkHandler = (start, end, subName, correctMark, wrongMark) => {
-    console.log(start, end, subName, correctMark, wrongMark);
-    console.log(subjectWiseMarking);
+    if (!start) {
+      toast.error(
+        "select valid starting question value in subject wise marking ...."
+      );
+      return;
+    }
+    if (!end) {
+      toast.error(
+        "select valid end question value in subject wise marking ...."
+      );
+      return;
+    }
+    if (subName == "") {
+      toast.error(
+        "empty value !!! in subject name field in subject wise marking ...."
+      );
+      return;
+    }
     const finditem = subjectWiseMarking.find(
       (current) => current.subject == subName
     );
-    console.log(finditem);
+
+    if (finditem) {
+      toast.error(
+        "choose a different subject name in subject wise marking...."
+      );
+      return;
+    }
     if (!finditem) {
       ctx.subjectMarkHandler({
         subject: subName,
         start: start,
         end: end,
-        correct: correctMark,
-        wrong: wrongMark,
+        correctPoint: +correctMark,
+        wrongPoint: +wrongMark,
       });
-    } else {
-      console.log("subject already present");
     }
   };
+
   return (
     <div className="m-2 mt-10 w-[100%]  pe-4">
       <div className="flex justify-center">
-        <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
+        <div className="animate__animated animate__zoomInUp animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
           <div className="flex justify-center">
             <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
               Subject Wise Marking
@@ -54,7 +77,7 @@ const SubjectWiseMarkApply = () => {
                 >
                   Start que :
                   <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
-                    {!SubjectStartKey.current ? (
+                    {SubjectStartKey.current < 0 || !SubjectStartKey.current ? (
                       <div className="text-white">select here</div>
                     ) : (
                       keyHEaders[0][SubjectStartKey.current]
@@ -90,7 +113,7 @@ const SubjectWiseMarkApply = () => {
                 >
                   End que :
                   <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
-                    {!SubjectEndKey.current ? (
+                    {SubjectEndKey.current < 0 || !SubjectEndKey.current ? (
                       <div className="text-white text-md">select here</div>
                     ) : (
                       keyHEaders[0][SubjectEndKey.current]
@@ -139,20 +162,29 @@ const SubjectWiseMarkApply = () => {
                 </div>
               </div>
             </div>
-            <div className=" mt-2 h-[120px] w-[40%] mx-2 flex flex-col items-center">
-              <div className="bg-gray-200 w-[100%] text-center font-bold">
+            <div className=" mt-4 h-[120px] w-[40%] mx-2 flex flex-col items-center">
+              <div className="bg-blue-400 w-[100%] text-center font-bold">
                 selected subject
               </div>
               <div className="overflow-y-scroll h-[100px] w-[100%] text-center border-s border-2">
                 {subjectWiseMarking.map((current) => (
-                  <p className="font-bold  border-b border-blue-600 hover:bg-white hover:border-b-0">
-                    {current.subject}
-                  </p>
+                  <div className="font-bold bg-white items-center border-b border-blue-600 hover:bg-white hover:border-b-0 flex justify-between ">
+                    <p className="ms-2">{current.subject}</p>
+                    <p className="mx-2">
+                      <RiDeleteBin6Line
+                        className="w-[25px] h-[25px] hover:text-red-500"
+                        onClick={() => {
+                          ctx.deleteSubjectHandler(current.subject)
+                          // deleteSubjectHandler(current.subject);
+                        }}
+                      />
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
-          <div className="flex justify-between  mx-4 text-center w-[100%]">
+          <div className="flex justify-between mt-2 mx-4 text-center w-[100%]">
             <div className="flex text-[1.1rem] font-bold justify-center  mx-8">
               Subject :{" "}
               <input
