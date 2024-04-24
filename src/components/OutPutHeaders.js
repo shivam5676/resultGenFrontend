@@ -6,13 +6,21 @@ const OutPutHeaders = () => {
   const ctx = useContext(ResultGenerationContext);
   const dataHeaders = ctx.dataHeaders;
   const subjectMArking = ctx.subjectMarkings.length;
- 
+
   const [headers, setHeaders] = useState([]);
   const outPutHeadersHandler = (data) => {
     // headers.push(data);
-    setHeaders((prev) => [...prev, data]);
-  };
+    const findHeader = headers.includes(data);
 
+    if (findHeader) {
+      // if header will be present then we will remove it
+      const filteredHEaders = headers.filter((current) => current !== data);
+      setHeaders(filteredHEaders);
+    } else {
+      setHeaders((prev) => [...prev, data]);
+    }
+  };
+  console.log(headers);
   return (
     //  {/* outputheaders */}
     <>
@@ -26,12 +34,16 @@ const OutPutHeaders = () => {
           {dataHeaders &&
             dataHeaders[0].map((current, index) => {
               return (
-                <div className="    hover:bg-yellow-500" key={index}>
+                <div
+                  className="    hover:bg-yellow-500"
+                  key={index}
+                  onClick={() => outPutHeadersHandler(current)}
+                >
                   <input
                     type="checkbox"
                     id={current}
                     name={current}
-                    onClick={() => outPutHeadersHandler(current)}
+                    checked={headers.includes(current)}
                     className="mx-2 h-[20px] w-[20px] my-2"
                   />
                   <label

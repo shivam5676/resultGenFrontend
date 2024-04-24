@@ -27,7 +27,7 @@ const UploadStatus = () => {
             <div className="my-2">
               <FaRegCircleCheck className="w-[80px] h-[80px] mx-2" />
             </div>
-            <p className="my-2 h-[100%] flex items-center overflow-y-hidden p-2 font-bolder">
+            <p className="my-2 h-[100%] w-[100%] flex items-center overflow-y-hidden p-2 font-bolder">
               {current}
             </p>
           </div>
