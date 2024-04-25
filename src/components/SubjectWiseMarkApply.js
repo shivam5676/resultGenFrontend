@@ -24,11 +24,19 @@ const SubjectWiseMarkApply = () => {
       );
       return;
     }
-    if (!end) {
+    if (!end ) {
       toast.error(
         "select valid end question value in subject wise marking ...."
       );
       return;
+    }
+    if(correctMark<0){
+      toast.error("correct mark should be a positive number....in subject wise marking")
+      return
+    }
+    if(wrongMark<0){
+      toast.error("wrong mark should be a positive number....in subject wise marking")
+      return
     }
     if (subName == "") {
       toast.error(
@@ -66,19 +74,19 @@ const SubjectWiseMarkApply = () => {
               Subject Wise Marking
             </p>
           </div>
-          <div className="flex mt-2">
-            <div className="w-[60%]">
-              <div className="flex justify-between mt-2 mx-4 text-center">
+          <div className="flex mt-2 max-[816px]:flex-col-reverse  items-center">
+            <div className="min-[816px]:w-[60%]">
+              <div className="flex justify-between mt-2 mx-4 min-[816px]:text-center">
                 <div
                   className="font-bold text-[1.1rem] "
                   onClick={() => {
-                    setSubjectStartDropDownOpen(!subjectStartDropDownOpen);
+                    // setSubjectStartDropDownOpen(!subjectStartDropDownOpen);
                   }}
                 >
                   Start que :
-                  <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
+                  <div className="w-[120px]   min-[816px]:mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
                     {SubjectStartKey.current < 0 || !SubjectStartKey.current ? (
-                      <div className="text-white">select here</div>
+                      <div className="text-white text-center">select here</div>
                     ) : (
                       keyHEaders[0][SubjectStartKey.current]
                     )}
@@ -108,13 +116,13 @@ const SubjectWiseMarkApply = () => {
                 <div
                   className="font-bold text-[1.1rem]"
                   onClick={() => {
-                    setSubjectEndDropdownOpen(!subjectEndDropDownOpen);
+                    // setSubjectEndDropdownOpen(!subjectEndDropDownOpen);
                   }}
                 >
                   End que :
-                  <div className="w-[120px]   mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
+                  <div className="w-[120px]   min-[816px]:mx-4 my-2  overflow-x-hidden font-medium border-white border-2">
                     {SubjectEndKey.current < 0 || !SubjectEndKey.current ? (
-                      <div className="text-white text-md">select here</div>
+                      <div className="text-white text-md text-center">select here</div>
                     ) : (
                       keyHEaders[0][SubjectEndKey.current]
                     )}
@@ -141,28 +149,30 @@ const SubjectWiseMarkApply = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between mt-2 mx-4 text-center ">
+              <div className="flex justify-between mt-2 mx-4 min-[816px]:text-center ">
                 <div className="font-bold text-[1.1rem]">
                   Correct <span className="">(+)</span> :
                   <input
-                    className="w-[50px] mx-4 my-2"
+                    className="w-[50px] mx-4 my-2 text-center"
                     defaultValue={1}
                     type="number"
                     ref={correctSubjectPoint}
+                    onChange={(e)=>correctSubjectPoint.current.value=e.target.value}
                   ></input>
                 </div>
                 <div className="font-bold text-[1.1rem]">
                   Wrong <span className="">(-)</span> :
                   <input
-                    className="w-[50px] mx-4 my-2"
+                    className="w-[50px] mx-4 my-2 text-center"
                     defaultValue={0}
                     type="number"
                     ref={wrongSubjectPoint}
+                    onChange={(e)=>wrongSubjectPoint.current.value=e.target.value}
                   ></input>
                 </div>
               </div>
             </div>
-            <div className=" mt-4 h-[120px] w-[40%] mx-2 flex flex-col items-center">
+            <div className=" mt-4 h-[120px] w-[60%] min-[816px]:w-[40%] mx-2 flex flex-col items-center">
               <div className="bg-blue-400 w-[100%] text-center font-bold">
                 selected subject
               </div>

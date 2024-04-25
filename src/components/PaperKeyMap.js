@@ -24,13 +24,13 @@ const PaperkeyMap = () => {
               className="bg-gradient-to-r from-cyan-500 to-blue-500 w-[100%] rounded-lg flex flex-col items-center py-4"
               onClick={(event) => {
                 event.stopPropagation();
-                // setSelectedKeyOpen(!selectedKeyOpen)
+                // setSelectedKeyOpen(!selectedKeyOpen);
               }}
             >
               <div className="text-[1.2rem] font-bold">Select Key value</div>
               <div
                 className="border w-[80%] ms-2 flex flex-col items-center"
-                // onClick={selectedKEyOptionOpen}
+                onClick={() => setSelectedKeyOpen(!selectedKeyOpen)}
               >
                 {!mappedKey ? (
                   <div
@@ -54,7 +54,7 @@ const PaperkeyMap = () => {
                         className="h-[50px]"
                         key={currentKey}
                         onClick={(event) => {
-                          event.stopPropagation();
+                          // event.stopPropagation();
                           setMappedKEy(currentKey);
                           setSelectedKeyOpen(!selectedKeyOpen); // Close the dropdown after selecting the key
                           console.log("selected key:", currentKey);

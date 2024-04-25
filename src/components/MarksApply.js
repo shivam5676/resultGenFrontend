@@ -14,7 +14,7 @@ const MarksApply = () => {
       <div className="animate__animated animate__zoomInDown animate__delay-2s w-[100%] max-w-[600px] h-fit bg-gradient-to-r from-red-600 to-yellow-500 pb-8 rounded-lg">
         <div className="flex justify-center">
           <p className="font-bold pt-8 pb-2 text-2xl border-b-2 border-grey-500 text-white">
-            Marks to Apply
+            Paper Wise Marking
           </p>
         </div>
         <div className="flex justify-around mt-2">

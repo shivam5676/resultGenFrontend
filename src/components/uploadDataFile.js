@@ -61,7 +61,7 @@ const UploadDataFile = () => {
   return (
     <div className="h-[100vh] w-[100%] flex  pt-[70px] overflow-y-hidden">
       {uploadFiles.length > 0 && (
-        <div className="h-[100%] border-2 flex flex-col min-w-[280px] w-[20vw]  overflow-y-scroll">
+        <div className="h-[100%] border-2 flex flex-col min-w-[300px] w-[20vw] max-w-[900px]:min-w-[280px] overflow-y-scroll">
           <UploadStatus></UploadStatus>
           <PaperkeyMap></PaperkeyMap>
           <PaperQueMapper></PaperQueMapper>
@@ -69,7 +69,7 @@ const UploadDataFile = () => {
       )}
 
       <div className=" w-[100%] flex max-[1020px]:flex-col overflow-y-scroll">
-        <div className="h-[100%]  flex w-[100%]">
+        <div className="h-[100%]  flex w-[100%] ">
           {!keyHEaders && (
             <div className=" flex flex-col items-center justify-center h-auto w-[100%]">
               {!dataHeaders && (
@@ -121,11 +121,12 @@ const UploadDataFile = () => {
           )}
         </div>
         {dataHeaders && keyHEaders && (
-          <div className="h-auto border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%] mb-[70px]">
-            <div className="mx-2 w-[100%]">
-              <OutPutHeaders></OutPutHeaders>
-            </div>
-          </div>
+          <OutPutHeaders></OutPutHeaders>
+
+          // <div className="h-auto border-2 flex w-[20vw] min-w-[300px] max-[1020px]:w-[100%] mb-[70px]">
+          //   <div className="mx-2 w-[100%]">
+          //   </div>
+          // </div>
         )}
       </div>
     </div>
